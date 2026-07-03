@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Holiday packing list</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --surface-2: #ffffff;
+    --surface-1: #f7f6f3;
+    --surface-0: #fafaf8;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+    --border: #e5e4df;
+    --border-strong: #c9c7c0;
+    --border-accent: #185fa5;
+    --bg-accent: #e6f1fb;
+    --text-accent: #185fa5;
+    --bg-danger: #fcebeb;
+    --text-danger: #a32d2d;
+    --border-danger: #e24b4a;
+    --shadow-popover: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  #page { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; }
+  .topbar h1 { font-size: 18px; font-weight: 500; margin: 0; }
+  .reset-btn { background:none; border:0.5px solid var(--border); border-radius:var(--radius); padding:6px 14px; font-size:13px; color:var(--text-secondary); cursor:pointer; display:none; align-items:center; gap:6px; }
+  .reset-btn:hover { border-color:var(--border-danger); color:var(--text-danger); }
+  .reset-btn.show { display:inline-flex; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+  #app .lead { text-align:center; font-size:15px; color:var(--text-secondary); margin:0 auto 1.75rem; }
+  .season-center { min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .season-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; width:100%; max-width:420px; margin:0 auto; }
+  .season-card { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:2rem 1rem; background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; cursor:pointer; animation:bob 3.6s ease-in-out infinite; transition:transform .18s ease, border-color .18s ease; }
+  .season-card:nth-child(2){ animation-delay:.5s; }
+  .season-card i { font-size:44px; color:var(--text-secondary); transition:color .18s ease; }
+  .season-card span { font-size:15px; color:var(--text-primary); }
+  .season-card:hover { transform:translateY(-6px) scale(1.05); border-color:var(--border-accent); animation-play-state:paused; }
+  .season-card[data-season="summer"]:hover i { color:#F97316; }
+  .season-card[data-season="winter"]:hover i { color:#378ADD; }
+
+  #screen-bags, #screen-pack { padding:0 10px; }
+
+  .bag-grid { display:grid; grid-template-columns:repeat(5, minmax(90px,1fr)); gap:14px; padding:.5rem 0 1rem; }
+  .bag-card { position:relative; display:flex; flex-direction:column; align-items:center; gap:9px; background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:1rem .5rem .8rem; cursor:pointer; animation:bob 3.6s ease-in-out infinite; transition:transform .18s ease, border-color .18s ease; }
+  .bag-card:hover { transform:translateY(-6px) scale(1.05); border-color:var(--border-accent); animation-play-state:paused; }
+  .bag-card.selected { border:2px solid var(--border-accent); background:var(--bg-accent); animation-play-state:paused; transform:translateY(-2px); }
+  .bag-card.selected .bag-label { color:var(--text-accent); }
+  .bag-card .check { position:absolute; top:6px; right:6px; width:19px; height:19px; border-radius:50%; background:var(--text-accent); color:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:12px; }
+  .bag-card.shake { animation:shake .4s; }
+  .bag-label { font-size:11px; color:var(--text-secondary); text-align:center; }
+
+  .btnrow { display:flex; justify-content:space-between; align-items:center; margin-top:1rem; }
+  .linkbtn { background:none; border:none; color:var(--text-secondary); font-size:13px; cursor:pointer; padding:6px 4px; }
+  .linkbtn:hover { color:var(--text-primary); }
+  .cta { background:var(--surface-2); border:0.5px solid var(--border-strong); border-radius:var(--radius); padding:8px 18px; font-size:14px; cursor:pointer; }
+  .cta:hover { background:var(--surface-1); }
+  .cta:disabled { opacity:.4; cursor:not-allowed; }
+
+  .dock { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .bag { position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:12px 10px 10px; flex:1; min-width:120px; max-width:180px; cursor:pointer; transition:transform .2s ease, border-color .2s ease, background .2s ease; }
+  .bag .no-pe { pointer-events:none; }
+  .bag .bag-svg { transition:transform .25s ease; }
+  .bag.drop-ready { border:2px solid var(--border-accent); background:var(--bg-accent); transform:translateY(-4px) scale(1.04); }
+  .bag.drop-ready .bag-svg { transform:translateY(-6px) scale(1.06) rotate(-2deg); }
+  .bag .mouth { position:absolute; top:4px; left:12px; right:44px; height:20px; border:2px dashed var(--border-accent); border-radius:10px 10px 4px 4px; opacity:0; transition:opacity .2s ease; display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--text-accent); }
+  .bag.drop-ready .mouth { opacity:1; }
+  .bag .bag-name { font-size:11px; color:var(--text-secondary); text-align:center; }
+  .bag .count { font-size:11px; color:var(--text-accent); }
+  .bag .open-btn { position:absolute; top:6px; right:6px; pointer-events:auto; width:26px; height:26px; border-radius:8px; border:0.5px solid var(--border); background:var(--surface-1); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5; }
+  .bag .open-btn i { font-size:16px; }
+  .bag .open-btn:hover { border-color:var(--border-accent); color:var(--text-accent); background:var(--surface-2); }
+
+  .peek { position:absolute; left:0; right:0; z-index:20; background:var(--surface-2); border:0.5px solid var(--border-strong); border-radius:12px; padding:12px 14px; box-shadow:var(--shadow-popover); display:none; }
+  .peek h4 { font-size:13px; margin:0 0 2px; color:var(--text-secondary); font-weight:500; }
+  .peek .grp { margin-bottom:8px; }
+  .peek .grp:last-child { margin-bottom:0; }
+  .peek .pit { display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--text-primary); background:var(--surface-1); border-radius:20px; padding:3px 9px; margin:3px 4px 0 0; }
+  .peek .pit i { font-size:14px; color:var(--text-secondary); }
+  .peek .empty { font-size:12px; color:var(--text-muted); }
+  .peek .hint { font-size:11px; color:var(--text-muted); margin-top:6px; }
+
+  .drawer { border:0.5px solid var(--border); border-radius:12px; margin-top:12px; overflow:hidden; background:var(--surface-2); }
+  .drawer-head { display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; padding:13px 15px; cursor:pointer; font-size:15px; color:var(--text-primary); text-align:left; }
+  .drawer-head i.dh-icon { font-size:20px; color:var(--text-secondary); }
+  .drawer-head .chev { margin-left:auto; font-size:18px; color:var(--text-muted); transition:transform .2s ease; }
+  .drawer.open .chev { transform:rotate(180deg); }
+  .drawer-body { display:none; padding:4px 15px 15px; }
+  .drawer.open .drawer-body { display:block; }
+  .subhead { font-size:12px; color:var(--text-muted); margin:12px 0 8px; }
+  .chip-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(90px,1fr)); gap:8px; }
+  .chip { position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; padding:11px 6px 9px; background:var(--surface-1); border:0.5px solid var(--border); border-radius:10px; cursor:grab; text-align:center; transition:border-color .15s ease, transform .1s ease; }
+  .chip:hover { border-color:var(--border-accent); }
+  .chip:active { cursor:grabbing; transform:scale(.96); }
+  .chip i { font-size:22px; color:var(--text-secondary); }
+  .chip .nm { font-size:11px; color:var(--text-primary); line-height:1.25; }
+  .chip .qty { position:absolute; top:4px; right:6px; font-size:10px; color:var(--text-muted); }
+
+  .bin { margin-top:14px; border:1px dashed var(--border-strong); border-radius:12px; padding:10px 14px; background:var(--surface-1); transition:border-color .2s ease, background .2s ease; }
+  .bin.drop-ready { border-color:var(--border-danger); background:var(--bg-danger); }
+  .bin-head { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:var(--text-secondary); }
+  .bin-head i { font-size:18px; }
+  .bin.drop-ready .bin-head { color:var(--text-danger); }
+  .bin-list { display:none; margin-top:10px; }
+  .bin.expanded .bin-list { display:block; }
+  .bin .pit { display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--text-secondary); background:var(--surface-2); border:0.5px solid var(--border); border-radius:20px; padding:3px 9px; margin:3px 4px 0 0; cursor:pointer; }
+  .bin .pit i { font-size:14px; }
+  .bin .pit:hover { border-color:var(--border-accent); color:var(--text-accent); }
+
+  .add-wrap { margin-top:14px; }
+  .add-btn { width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:none; border:1px dashed var(--border-strong); border-radius:12px; padding:12px; font-size:14px; color:var(--text-secondary); cursor:pointer; }
+  .add-btn:hover { border-color:var(--border-accent); color:var(--text-accent); }
+  .add-form { display:none; margin-top:12px; background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:14px 16px; }
+  .add-form.open { display:block; }
+  .add-form label { font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px; }
+  .add-form input[type="text"] { height:36px; border-radius:var(--radius); border:0.5px solid var(--border); padding:0 10px; font-size:14px; background:var(--surface-1); color:var(--text-primary); }
+  .icon-pick { display:grid; grid-template-columns:repeat(auto-fill, minmax(44px,1fr)); gap:8px; margin:10px 0 14px; }
+  .icon-pick button { height:40px; border:0.5px solid var(--border); border-radius:10px; background:var(--surface-1); color:var(--text-secondary); font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .icon-pick button:hover { border-color:var(--border-accent); }
+  .icon-pick button.sel { border:2px solid var(--border-accent); background:var(--bg-accent); color:var(--text-accent); }
+  .add-actions { display:flex; justify-content:flex-end; gap:10px; align-items:center; }
+
+  .modal-overlay { position:fixed; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,.45); z-index:50; display:none; align-items:flex-start; justify-content:center; padding:40px 16px; }
+  .modal-overlay.open { display:flex; }
+  .modal-box { background:var(--surface-2); border:0.5px solid var(--border-strong); border-radius:12px; padding:16px 20px 20px; max-width:440px; width:100%; }
+  .modal-box .m-head { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .modal-box .m-title { font-size:16px; color:var(--text-primary); }
+  .modal-box .m-close { margin-left:auto; background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:22px; line-height:1; }
+  .modal-box .m-count { font-size:12px; color:var(--text-secondary); margin-bottom:8px; }
+  .modal-box .m-sub { font-size:12px; color:var(--text-muted); margin:14px 0 4px; }
+  .modal-box .m-item { display:flex; align-items:center; gap:9px; font-size:13px; color:var(--text-primary); padding:7px 0; border-bottom:0.5px solid var(--border); }
+  .modal-box .m-item i.mi { font-size:18px; color:var(--text-secondary); }
+  .modal-box .m-un { margin-left:auto; font-size:11px; color:var(--text-secondary); background:none; border:0.5px solid var(--border); border-radius:20px; padding:3px 10px; cursor:pointer; }
+  .modal-box .m-un:hover { border-color:var(--border-danger); color:var(--text-danger); }
+  .modal-box .m-empty { font-size:13px; color:var(--text-muted); padding:12px 0; }
+
+  .empty-note { font-size:13px; color:var(--text-muted); text-align:center; padding:1.5rem 0; }
+  @keyframes bob { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-6px);} 40%,80%{transform:translateX(6px);} }
+</style>
+</head>
+<body>
+<div id="page">
+  <div class="topbar">
+    <h1>Holiday packing</h1>
+    <div style="display:flex; gap:8px;">
+      <button class="reset-btn" id="share-btn"><i class="ti ti-link"></i> Share trip</button>
+      <button class="reset-btn" id="reset-btn"><i class="ti ti-refresh"></i> New trip</button>
+    </div>
+  </div>
+
+  <div id="app" style="position:relative; min-height:360px;">
+  <h2 class="sr-only">Interactive holiday packing app: choose a season, pick up to three bags, then drag items from the drawers into each bag.</h2>
+
+  <div id="screen-season" class="screen">
+    <div class="season-center">
+      <p class="lead">Are you packing for a summer or a winter holiday?</p>
+      <div class="season-grid">
+        <button class="season-card" data-season="summer">
+          <i class="ti ti-sun" aria-hidden="true"></i>
+          <span>Summer</span>
+        </button>
+        <button class="season-card" data-season="winter">
+          <i class="ti ti-snowflake" aria-hidden="true"></i>
+          <span>Winter</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-bags" class="screen" style="display:none;"></div>
+  <div id="screen-pack" class="screen" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var SUPABASE_URL = 'https://guwrxzbktctcpxpofsev.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_NhgQQn7N0PShU5X71jNMyQ_KgM7NY3m';
+  var sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  var tripId = new URLSearchParams(window.location.search).get('trip');
+  var saveTimer = null;
+  var applyingRemote = false;
+
+  var BAGS = {
+    'july-large': { label:'July — large', svg:'<svg viewBox="0 0 100 130" width="46" height="60"><rect x="8" y="34" width="14" height="8" rx="2" fill="var(--text-muted)"/><rect x="20" y="10" width="60" height="112" rx="10" fill="#6E7457"/><rect x="20" y="10" width="60" height="112" rx="10" fill="none" stroke="#4A4E3B" stroke-width="1.5"/><line x1="20" y1="70" x2="80" y2="70" stroke="#4A4E3B" stroke-width="1.5"/><rect x="42" y="2" width="16" height="14" rx="2" fill="none" stroke="#4A4E3B" stroke-width="2"/><circle cx="32" cy="126" r="5" fill="#2c2c2a"/><circle cx="68" cy="126" r="5" fill="#2c2c2a"/></svg>' },
+    'july-small': { label:'July — small', svg:'<svg viewBox="0 0 100 130" width="40" height="52"><rect x="24" y="24" width="52" height="98" rx="9" fill="#6E7457"/><rect x="24" y="24" width="52" height="98" rx="9" fill="none" stroke="#4A4E3B" stroke-width="1.5"/><line x1="24" y1="76" x2="76" y2="76" stroke="#4A4E3B" stroke-width="1.5"/><rect x="42" y="14" width="16" height="14" rx="2" fill="none" stroke="#4A4E3B" stroke-width="2"/><circle cx="34" cy="126" r="4.5" fill="#2c2c2a"/><circle cx="66" cy="126" r="4.5" fill="#2c2c2a"/></svg>' },
+    'lynxcher': { label:'Lynxcher backpack', svg:'<svg viewBox="0 0 100 130" width="44" height="57"><path d="M28 30 Q28 14 50 14 Q72 14 72 30 L76 110 Q76 120 66 120 L34 120 Q24 120 24 110 Z" fill="#2c2c2a"/><rect x="34" y="40" width="32" height="34" rx="6" fill="#444441"/><path d="M36 14 Q36 4 50 4 Q64 4 64 14" fill="none" stroke="#888780" stroke-width="4" stroke-linecap="round"/><rect x="30" y="18" width="8" height="26" rx="4" fill="#5f5e5a"/><rect x="62" y="18" width="8" height="26" rx="4" fill="#5f5e5a"/></svg>' },
+    'nordace': { label:'Nordace backpack', svg:'<svg viewBox="0 0 100 130" width="41" height="54"><rect x="26" y="22" width="48" height="94" rx="8" fill="#444441"/><rect x="26" y="22" width="48" height="94" rx="8" fill="none" stroke="#2c2c2a" stroke-width="1"/><path d="M38 22 Q38 10 50 10 Q62 10 62 22" fill="none" stroke="#BA7517" stroke-width="4" stroke-linecap="round"/><rect x="30" y="80" width="8" height="16" rx="2" fill="#BA7517"/><rect x="30" y="18" width="6" height="24" rx="3" fill="#888780"/><rect x="64" y="18" width="6" height="24" rx="3" fill="#888780"/></svg>' },
+    'crossbody': { label:'Lululemon — crossbody', svg:'<svg viewBox="0 0 100 130" width="48" height="40"><rect x="0" y="58" width="20" height="13" rx="3" fill="#161616"/><rect x="80" y="58" width="20" height="13" rx="3" fill="#161616"/><rect x="16" y="44" width="68" height="48" rx="15" fill="#1c1c1c"/><rect x="16" y="44" width="68" height="48" rx="15" fill="none" stroke="#000" stroke-width="1"/><rect x="22" y="58" width="7" height="13" rx="1.5" fill="#2a2a2a"/><line x1="26" y1="71" x2="22" y2="80" stroke="#555" stroke-width="2" stroke-linecap="round"/><circle cx="70" cy="78" r="4" fill="#8a8a8a"/></svg>' }
+  };
+  var BAG_ORDER = ['july-large','july-small','lynxcher','nordace','crossbody'];
+  var ICONS = ['ti-star','ti-gift','ti-camera','ti-map-pin','ti-umbrella','ti-key','ti-first-aid-kit','ti-plug','ti-music','ti-book','ti-shirt','ti-shoe','ti-bottle','ti-heart','ti-plane','ti-briefcase'];
+
+  var DATA = [
+    { name:'Clothing', icon:'ti-shirt', subs:[
+      { name:'Tops', items:[
+        {n:'T-shirts', i:'ti-shirt', s:'all', q:7},
+        {n:'Button Shirts', i:'ti-hanger', s:'all', q:3},
+        {n:'Long Sleeve', i:'ti-shirt', s:'all', q:2},
+        {n:'Hoodie', i:'ti-jacket', s:'winter', q:1},
+        {n:'Thermals', i:'ti-temperature-snow', s:'winter', q:2},
+        {n:'Tank Tops', i:'ti-barbell', s:'summer', q:3}
+      ]},
+      { name:'Bottoms', items:[
+        {n:'Dress Shorts', i:'ti-hanger', s:'summer', q:2},
+        {n:'Casual Shorts', i:'ti-hanger', s:'summer', q:4},
+        {n:'Pants', i:'ti-hanger', s:'all', q:2},
+        {n:'Jeans', i:'ti-hanger', s:'all', q:1}
+      ]},
+      { name:'Underwear', items:[
+        {n:'Underwear', i:'ti-hanger', s:'all', q:10},
+        {n:'Socks', i:'ti-sock', s:'all', q:5}
+      ]},
+      { name:'Shoes', items:[
+        {n:'Dress', i:'ti-shoe', s:'all', q:1},
+        {n:'Casual', i:'ti-shoe', s:'all', q:1},
+        {n:'Sandal', i:'ti-shoe', s:'summer', q:1}
+      ]},
+      { name:'Beach', items:[
+        {n:'Board Shorts', i:'ti-swimming', s:'summer', q:1},
+        {n:'Beach Towel', i:'ti-beach', s:'summer', q:1},
+        {n:'Hat', i:'ti-beach', s:'summer', q:1},
+        {n:'Water Shoes', i:'ti-shoe', s:'summer', q:1},
+        {n:'Beach Games', i:'ti-ball-volleyball', s:'summer', q:1}
+      ]}
+    ]},
+    { name:'Bathroom', icon:'ti-bath', subs:[
+      { name:'Skincare', items:[
+        {n:'Face Wash', i:'ti-droplet', s:'all', q:1},
+        {n:'Body Wash', i:'ti-droplet', s:'all', q:1},
+        {n:'Ordinary', i:'ti-droplet', s:'all', q:1},
+        {n:'Sunscreen (Body)', i:'ti-sun', s:'all', q:1},
+        {n:'Sunscreen (Face)', i:'ti-sun', s:'all', q:1},
+        {n:'Insect Repellent', i:'ti-bug', s:'summer', q:1}
+      ]},
+      { name:'Hair', items:[
+        {n:'Shampoo', i:'ti-droplet', s:'all', q:1},
+        {n:'Hair Gel', i:'ti-droplet', s:'all', q:1},
+        {n:'Comb/Brush', i:'ti-brush', s:'all', q:1}
+      ]},
+      { name:'Oral care', items:[
+        {n:'E-Toothbrush', i:'ti-dental', s:'all', q:1},
+        {n:'Tooth Paste', i:'ti-dental', s:'all', q:1}
+      ]},
+      { name:'Mouth Plate', items:[
+        {n:'Mouth Plate', i:'ti-dental', s:'all', q:1}
+      ]},
+      { name:'Grooming', items:[
+        {n:'Electric Shavers', i:'ti-scissors', s:'all', q:1},
+        {n:'Grooming Kit', i:'ti-scissors', s:'all', q:1},
+        {n:'Deodorant', i:'ti-spray', s:'all', q:1}
+      ]},
+      { name:'Health', items:[
+        {n:'Medication', i:'ti-pill', s:'all', q:1},
+        {n:'Tweezers', i:'ti-scissors', s:'all', q:1}
+      ]},
+      { name:'Extras', items:[
+        {n:'Tissues', i:'ti-box', s:'all', q:1}
+      ]}
+    ]},
+    { name:'Tech & travel', icon:'ti-plane', subs:[
+      { name:'Devices', items:[
+        {n:'Phone', i:'ti-device-mobile', s:'all', q:1},
+        {n:'2nd phone', i:'ti-device-mobile', s:'all', q:1},
+        {n:'Laptop', i:'ti-device-laptop', s:'all', q:1},
+        {n:'Kindle', i:'ti-book', s:'all', q:1},
+        {n:'Pixel Watch', i:'ti-device-watch', s:'all', q:1},
+        {n:'Nintendo Switch', i:'ti-device-gamepad', s:'all', q:1},
+        {n:'Chromecast', i:'ti-cast', s:'all', q:1},
+        {n:'Speaker', i:'ti-speakerphone', s:'all', q:1},
+        {n:'BOSE Quiet', i:'ti-headphones', s:'all', q:1},
+        {n:'Airpod Pro', i:'ti-ear', s:'all', q:1},
+        {n:'Projector', i:'ti-device-tv', s:'all', q:1}
+      ]},
+      { name:'Charging & cables', items:[
+        {n:'Power Bank', i:'ti-battery', s:'all', q:1},
+        {n:'USB-A Charger', i:'ti-usb', s:'all', q:1},
+        {n:'USB-C Charger', i:'ti-usb', s:'all', q:1},
+        {n:'Universal Adaptor', i:'ti-plug', s:'all', q:1},
+        {n:'AUX Cord', i:'ti-headphones', s:'all', q:1},
+        {n:'Headphone Cord', i:'ti-headphones', s:'all', q:1},
+        {n:'Watch Charger', i:'ti-battery', s:'all', q:1},
+        {n:'Micro USB Cord', i:'ti-usb', s:'all', q:1},
+        {n:'Thunderbolt Cord', i:'ti-usb', s:'all', q:1}
+      ]},
+      { name:'Documents & IDs', items:[
+        {n:'Passport', i:'ti-id', s:'all', q:1},
+        {n:'Credit Card', i:'ti-credit-card', s:'all', q:1},
+        {n:'Drivers License', i:'ti-id', s:'all', q:1},
+        {n:'Document Copy', i:'ti-file', s:'all', q:1},
+        {n:'Flight PDF save', i:'ti-file-text', s:'all', q:1}
+      ]},
+      { name:'Flight comfort', items:[
+        {n:'Plane Pillow', i:'ti-plane', s:'all', q:1},
+        {n:'Eye Mask', i:'ti-eye', s:'all', q:1},
+        {n:'Loop Earplug', i:'ti-ear', s:'all', q:1},
+        {n:'Mouth Tape', i:'ti-dental', s:'all', q:1},
+        {n:'Tune up Ball', i:'ti-ball-basketball', s:'all', q:1}
+      ]},
+      { name:'Eyewear', items:[
+        {n:'Glasses', i:'ti-eyeglass', s:'all', q:1},
+        {n:'Sunglasses', i:'ti-eyeglass', s:'all', q:1}
+      ]},
+      { name:'Carry & extras', items:[
+        {n:'Water Bottle', i:'ti-bottle', s:'all', q:1},
+        {n:'Phone Holder', i:'ti-device-mobile', s:'all', q:1},
+        {n:'Note Book', i:'ti-notebook', s:'all', q:1},
+        {n:'Tile(s)', i:'ti-map-pin', s:'all', q:3},
+        {n:'Padlocks', i:'ti-lock', s:'all', q:3},
+        {n:'Netflix/Youtube DL', i:'ti-download', s:'all', q:1}
+      ]}
+    ]},
+    { name:'Custom', icon:'ti-star', subs:[
+      { name:'Added items', items:[] }
+    ]}
+  ];
+
+  var state = { season:null, bags:[], items:{} };
+  var META = {};
+  function slug(x){ return x.toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
+  DATA.forEach(function(d){ d.subs.forEach(function(sub){ sub.items.forEach(function(it){
+    var id = slug(d.name+'-'+sub.name+'-'+it.n);
+    it.id = id;
+    META[id] = { id:id, name:it.n, icon:it.i, sub:sub.name, domain:d.name };
+    state.items[id] = 'available';
+  }); }); });
+  var CUSTOM = null; DATA.forEach(function(d){ if(d.name==='Custom') CUSTOM = d.subs[0]; });
+
+  function buildPayload(){
+    return {
+      season: state.season,
+      bags: state.bags,
+      items: state.items,
+      custom: CUSTOM.items.map(function(it){ return {n:it.n, i:it.i, id:it.id}; })
+    };
+  }
+
+  function applyPayload(parsed){
+    if(!parsed || !parsed.season || !parsed.bags || !parsed.bags.length) return false;
+    (parsed.custom || []).forEach(function(c){
+      if(META[c.id]) return;
+      var it = { n:c.n, i:c.i, s:'all', q:1, id:c.id };
+      CUSTOM.items.push(it);
+      META[c.id] = { id:c.id, name:c.n, icon:c.i, sub:'Added items', domain:'Custom' };
+    });
+    state.season = parsed.season;
+    state.bags = parsed.bags;
+    Object.keys(META).forEach(function(id){ state.items[id] = 'available'; });
+    Object.keys(parsed.items || {}).forEach(function(id){
+      if(META[id]) state.items[id] = parsed.items[id];
+    });
+    return true;
+  }
+
+  function updateShareVisibility(){
+    var btn = document.getElementById('share-btn');
+    if(!btn) return;
+    if(tripId) btn.classList.add('show'); else btn.classList.remove('show');
+  }
+
+  function subscribeRealtime(){
+    if(!tripId) return;
+    sbClient.channel('trip-'+tripId)
+      .on('postgres_changes', { event:'UPDATE', schema:'public', table:'trips', filter:'id=eq.'+tripId }, function(payload){
+        if(!payload.new || !payload.new.state) return;
+        applyingRemote = true;
+        applyPayload(payload.new.state);
+        if(document.getElementById('dock')){ renderDrawers(); renderBin(); updateBadges(); }
+        else if(document.querySelector('.bag-grid')){ buildBags(); }
+        applyingRemote = false;
+      })
+      .subscribe();
+    updateShareVisibility();
+  }
+
+  function doSaveState(){
+    if(applyingRemote) return;
+    var payload = buildPayload();
+    if(!tripId){
+      sbClient.from('trips').insert({ state: payload }).select('id').single().then(function(res){
+        if(res.data && res.data.id){
+          tripId = res.data.id;
+          var url = new URL(window.location.href);
+          url.searchParams.set('trip', tripId);
+          window.history.replaceState({}, '', url);
+          subscribeRealtime();
+        }
+      });
+    } else {
+      sbClient.from('trips').update({ state: payload, updated_at: new Date().toISOString() }).eq('id', tripId).then(function(){});
+    }
+  }
+
+  function saveState(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSaveState, 350);
+  }
+
+  function loadState(){
+    if(!tripId) return Promise.resolve(false);
+    return sbClient.from('trips').select('state').eq('id', tripId).maybeSingle().then(function(res){
+      if(res.error || !res.data || !res.data.state){ tripId = null; return false; }
+      var ok = applyPayload(res.data.state);
+      if(ok) subscribeRealtime();
+      return ok;
+    }).catch(function(){ tripId = null; return false; });
+  }
+
+  function clearState(){
+    try { sbClient.removeAllChannels(); } catch(e) {}
+    tripId = null;
+    var url = new URL(window.location.href);
+    url.searchParams.delete('trip');
+    window.history.replaceState({}, '', url);
+  }
+
+  var draggingId = null;
+  var scSeason = document.getElementById('screen-season');
+  var scBags = document.getElementById('screen-bags');
+  var scPack = document.getElementById('screen-pack');
+  var resetBtn = document.getElementById('reset-btn');
+  var shareBtn = document.getElementById('share-btn');
+
+  function show(el){ [scSeason,scBags,scPack].forEach(function(s){ s.style.display='none'; }); el.style.display='block'; }
+  function clearDrag(){ draggingId=null; document.body.classList.remove('dragging'); }
+
+  shareBtn.addEventListener('click', function(){
+    var url = window.location.href;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){
+        var orig = shareBtn.innerHTML;
+        shareBtn.innerHTML = '<i class="ti ti-check"></i> Copied!';
+        setTimeout(function(){ shareBtn.innerHTML = orig; }, 1600);
+      });
+    } else {
+      prompt('Copy this link to share with friends:', url);
+    }
+  });
+
+  resetBtn.addEventListener('click', function(){
+    if(!confirm('Start a new trip? This clears your current packing progress.')) return;
+    clearState();
+    state.season = null; state.bags = [];
+    Object.keys(state.items).forEach(function(id){ state.items[id] = 'available'; });
+    CUSTOM.items = [];
+    Object.keys(META).slice().forEach(function(id){ if(META[id].domain==='Custom') delete META[id]; });
+    resetBtn.classList.remove('show');
+    updateShareVisibility();
+    show(scSeason);
+  });
+
+  scSeason.addEventListener('click', function(e){
+    var c = e.target.closest('.season-card'); if(!c) return;
+    state.season = c.dataset.season;
+    saveState();
+    buildBags();
+    show(scBags);
+  });
+
+  function buildBags(){
+    resetBtn.classList.add('show');
+    var html = '<p class="lead">Which bags are you packing? <span style="color:var(--text-muted)">(choose up to 3)</span></p>';
+    html += '<div class="bag-grid">';
+    BAG_ORDER.forEach(function(id){
+      var sel = state.bags.indexOf(id)>-1;
+      html += '<button class="bag-card'+(sel?' selected':'')+'" data-bag="'+id+'">'+(sel?'<span class="check"><i class="ti ti-check"></i></span>':'')+BAGS[id].svg+'<span class="bag-label">'+BAGS[id].label+'</span></button>';
+    });
+    html += '</div>';
+    html += '<div class="btnrow"><button class="linkbtn" id="back-season"><i class="ti ti-arrow-left"></i> Season</button><button class="cta" id="to-pack"'+(state.bags.length?'':' disabled')+'>Start packing</button></div>';
+    scBags.innerHTML = html;
+    scBags.querySelector('#back-season').onclick = function(){ show(scSeason); };
+    scBags.querySelector('#to-pack').onclick = function(){ if(state.bags.length){ saveState(); buildPack(); show(scPack); } };
+    scBags.querySelectorAll('.bag-card').forEach(function(card){
+      card.onclick = function(){
+        var id = card.dataset.bag, idx = state.bags.indexOf(id);
+        if(idx>-1){ state.bags.splice(idx,1); }
+        else if(state.bags.length>=3){ card.classList.add('shake'); setTimeout(function(){ card.classList.remove('shake'); },400); return; }
+        else { state.bags.push(id); }
+        saveState();
+        buildBags();
+      };
+    });
+  }
+
+  function buildPack(){
+    resetBtn.classList.add('show');
+    var seasonLabel = state.season.charAt(0).toUpperCase()+state.season.slice(1);
+    var html = '<div class="btnrow" style="margin-bottom:12px;"><button class="linkbtn" id="back-bags"><i class="ti ti-arrow-left"></i> Bags</button><span style="font-size:13px;color:var(--text-secondary);"><i class="ti ti-'+(state.season==='summer'?'sun':'snowflake')+'" style="vertical-align:-2px;margin-right:4px;"></i>'+seasonLabel+' trip</span></div>';
+    html += '<div id="dock-wrap" style="position:relative;"><div class="dock" id="dock"></div><div class="peek" id="peek"></div></div>';
+    html += '<div id="drawers"></div>';
+    html += '<div class="bin" id="bin"><div class="bin-head" id="bin-head"><i class="ti ti-trash"></i><span id="bin-label">Not this trip (0)</span><i class="ti ti-chevron-down" style="margin-left:auto;"></i></div><div class="bin-list" id="bin-list"></div></div>';
+    html += '<div class="add-wrap"><button class="add-btn" id="add-btn"><i class="ti ti-plus"></i> Add an item</button><div class="add-form" id="add-form"><label>Item name</label><input type="text" id="add-name" placeholder="e.g. Snorkel" style="width:100%;" /><label style="margin-top:12px;">Choose an icon</label><div class="icon-pick" id="icon-pick"></div><div class="add-actions"><button class="linkbtn" id="add-cancel">Cancel</button><button class="cta" id="add-save">Add item</button></div></div></div>';
+    html += '<div class="modal-overlay" id="modal"><div class="modal-box" id="modal-box"></div></div>';
+    scPack.innerHTML = html;
+
+    scPack.querySelector('#back-bags').onclick = function(){ buildBags(); show(scBags); };
+
+    var dock = scPack.querySelector('#dock');
+    state.bags.forEach(function(id){
+      var el = document.createElement('div');
+      el.className = 'bag'; el.dataset.bag = id;
+      el.innerHTML = '<button class="open-btn" data-view="'+id+'" aria-label="View contents"><i class="ti ti-external-link"></i></button><div class="mouth no-pe">drop in</div><div class="bag-svg no-pe">'+BAGS[id].svg+'</div><div class="bag-name no-pe">'+BAGS[id].label+'</div><div class="count no-pe" data-count="'+id+'">0 items</div>';
+      el.addEventListener('dragover', function(e){ e.preventDefault(); });
+      el.addEventListener('dragenter', function(e){ e.preventDefault(); el.classList.add('drop-ready'); });
+      el.addEventListener('dragleave', function(){ el.classList.remove('drop-ready'); });
+      el.addEventListener('drop', function(e){ e.preventDefault(); el.classList.remove('drop-ready'); var item=draggingId; clearDrag(); if(item){ state.items[item] = {bag:id}; saveState(); refresh(); } });
+      el.addEventListener('mouseenter', function(){ if(!document.body.classList.contains('dragging')) showPeek(id); });
+      el.addEventListener('mouseleave', hidePeek);
+      el.addEventListener('click', function(){ if(!document.body.classList.contains('dragging')) openContents(id); });
+      el.querySelector('.open-btn').addEventListener('click', function(ev){ ev.stopPropagation(); openContents(id); });
+      dock.appendChild(el);
+    });
+
+    var peek = scPack.querySelector('#peek');
+    peek.addEventListener('mouseenter', function(){ peek.dataset.hold='1'; });
+    peek.addEventListener('mouseleave', function(){ peek.dataset.hold=''; hidePeek(); });
+
+    var drawers = scPack.querySelector('#drawers');
+    drawers.addEventListener('dragstart', function(e){ var c=e.target.closest('.chip'); if(!c) return; draggingId=c.dataset.id; document.body.classList.add('dragging'); hidePeek(); });
+    drawers.addEventListener('dragend', function(){ clearDrag(); scPack.querySelectorAll('.drop-ready').forEach(function(x){x.classList.remove('drop-ready');}); });
+    drawers.addEventListener('click', function(e){ var h=e.target.closest('.drawer-head'); if(h){ h.parentNode.classList.toggle('open'); } });
+
+    var bin = scPack.querySelector('#bin');
+    bin.addEventListener('dragover', function(e){ e.preventDefault(); });
+    bin.addEventListener('dragenter', function(e){ e.preventDefault(); bin.classList.add('drop-ready'); });
+    bin.addEventListener('dragleave', function(e){ if(!bin.contains(e.relatedTarget)) bin.classList.remove('drop-ready'); });
+    bin.addEventListener('drop', function(e){ e.preventDefault(); bin.classList.remove('drop-ready'); var item=draggingId; clearDrag(); if(item){ state.items[item]='binned'; saveState(); refresh(); } });
+    scPack.querySelector('#bin-head').addEventListener('click', function(){ bin.classList.toggle('expanded'); });
+    scPack.querySelector('#bin-list').addEventListener('click', function(e){ var p=e.target.closest('.pit'); if(!p) return; state.items[p.dataset.id]='available'; saveState(); refresh(); });
+
+    var selectedIcon = null;
+    var iconPick = scPack.querySelector('#icon-pick');
+    iconPick.innerHTML = ICONS.map(function(ic){ return '<button type="button" data-ic="'+ic+'" aria-label="'+ic+'"><i class="ti '+ic+'"></i></button>'; }).join('');
+    iconPick.addEventListener('click', function(e){ var b=e.target.closest('button'); if(!b) return; iconPick.querySelectorAll('button').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); selectedIcon=b.dataset.ic; });
+    var addBtn = scPack.querySelector('#add-btn'), addForm = scPack.querySelector('#add-form'), addName = scPack.querySelector('#add-name');
+    function resetForm(){ addName.value=''; selectedIcon=null; iconPick.querySelectorAll('button').forEach(function(x){x.classList.remove('sel');}); }
+    addBtn.addEventListener('click', function(){ addForm.classList.toggle('open'); if(addForm.classList.contains('open')) addName.focus(); });
+    scPack.querySelector('#add-cancel').addEventListener('click', function(){ addForm.classList.remove('open'); resetForm(); });
+    scPack.querySelector('#add-save').addEventListener('click', function(){ var nm=addName.value.trim(); if(!nm){ addName.focus(); return; } addCustom(nm, selectedIcon||'ti-star'); resetForm(); addForm.classList.remove('open'); });
+    addName.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); scPack.querySelector('#add-save').click(); } });
+
+    var modal = scPack.querySelector('#modal');
+    modal.addEventListener('click', function(e){ if(e.target===modal) modal.classList.remove('open'); });
+
+    refresh();
+  }
+
+  function addCustom(name, icon){
+    var base = slug('custom-added-items-'+name); var id = base; var n=1;
+    while(META[id]){ id = base+'-'+(n++); }
+    var it = { n:name, i:icon, s:'all', q:1, id:id };
+    CUSTOM.items.push(it);
+    META[id] = { id:id, name:name, icon:icon, sub:'Added items', domain:'Custom' };
+    state.items[id] = 'available';
+    saveState();
+    refresh();
+    var cd = scPack.querySelector('.drawer[data-dom="Custom"]'); if(cd) cd.classList.add('open');
+  }
+
+  function inSeason(it){ return it.s==='all' || it.s===state.season; }
+  function refresh(){ renderDrawers(); renderBin(); updateBadges(); saveState(); }
+
+  function renderDrawers(){
+    var host = scPack.querySelector('#drawers');
+    var open = {}; host.querySelectorAll('.drawer.open').forEach(function(d){ open[d.dataset.dom]=1; });
+    var html = ''; var anyLeft = false;
+    DATA.forEach(function(d){
+      var subsHtml = '';
+      d.subs.forEach(function(sub){
+        var chips = '';
+        sub.items.forEach(function(it){
+          if(!inSeason(it)) return;
+          if(state.items[it.id] !== 'available') return;
+          chips += '<div class="chip" draggable="true" data-id="'+it.id+'"><i class="ti '+it.i+'" aria-hidden="true"></i><span class="nm">'+it.n+'</span>'+(it.q>1?'<span class="qty">x'+it.q+'</span>':'')+'</div>';
+        });
+        if(chips){ subsHtml += '<div class="subhead">'+sub.name+'</div><div class="chip-grid">'+chips+'</div>'; }
+      });
+      if(subsHtml){
+        anyLeft = true;
+        var isOpen = open[d.name] ? ' open' : '';
+        html += '<div class="drawer'+isOpen+'" data-dom="'+d.name+'"><button class="drawer-head"><i class="ti '+d.icon+' dh-icon"></i>'+d.name+'<i class="ti ti-chevron-down chev"></i></button><div class="drawer-body">'+subsHtml+'</div></div>';
+      }
+    });
+    if(!anyLeft){ html = '<div class="empty-note">Everything is packed or set aside. Click a bag to see what is inside.</div>'; }
+    host.innerHTML = html;
+  }
+
+  function renderBin(){
+    var ids = Object.keys(state.items).filter(function(id){ return state.items[id]==='binned'; });
+    scPack.querySelector('#bin-label').textContent = 'Not this trip ('+ids.length+')';
+    var list = scPack.querySelector('#bin-list');
+    if(!ids.length){ list.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">Drag anything here to set it aside. Click to bring it back.</span>'; return; }
+    list.innerHTML = ids.map(function(id){ var m=META[id]; return '<span class="pit" data-id="'+id+'"><i class="ti '+m.icon+'"></i>'+m.name+' <i class="ti ti-arrow-back-up"></i></span>'; }).join('');
+  }
+
+  function updateBadges(){
+    state.bags.forEach(function(id){
+      var n = Object.keys(state.items).filter(function(k){ var v=state.items[k]; return v && v.bag===id; }).length;
+      var el = scPack.querySelector('[data-count="'+id+'"]');
+      if(el) el.textContent = n+(n===1?' item':' items');
+    });
+  }
+
+  function groupFor(bagId){
+    var groups = {};
+    Object.keys(state.items).forEach(function(id){ var v=state.items[id]; if(v && v.bag===bagId){ var m=META[id]; (groups[m.sub]=groups[m.sub]||[]).push(m); } });
+    return groups;
+  }
+
+  function showPeek(bagId){
+    var peek = scPack.querySelector('#peek'); peek.dataset.bag = bagId;
+    var groups = groupFor(bagId); var keys = Object.keys(groups);
+    var html = '<h4>'+BAGS[bagId].label+'</h4>';
+    if(!keys.length){ html += '<div class="empty">Empty so far — drag items here to pack them.</div>'; }
+    else {
+      keys.forEach(function(k){
+        html += '<div class="grp"><div class="subhead" style="margin:6px 0 2px;">'+k+'</div>';
+        html += groups[k].map(function(m){ return '<span class="pit"><i class="ti '+m.icon+'"></i>'+m.name+'</span>'; }).join('');
+        html += '</div>';
+      });
+      html += '<div class="hint">Click the bag for the full contents view.</div>';
+    }
+    peek.innerHTML = html;
+    peek.style.display = 'block';
+    peek.style.top = (scPack.querySelector('#dock').offsetHeight + 8) + 'px';
+  }
+  function hidePeek(){ setTimeout(function(){ var peek=scPack.querySelector('#peek'); if(peek && peek.dataset.hold!=='1' && !isHovering()) peek.style.display='none'; }, 60); }
+  function isHovering(){ var peek=scPack.querySelector('#peek'); if(!peek) return false; return peek.matches(':hover') || Array.prototype.some.call(scPack.querySelectorAll('.bag'), function(b){ return b.matches(':hover'); }); }
+
+  function openContents(bagId){
+    var box = scPack.querySelector('#modal-box');
+    var groups = groupFor(bagId); var keys = Object.keys(groups);
+    var count = keys.reduce(function(a,k){ return a+groups[k].length; }, 0);
+    var html = '<div class="m-head">'+BAGS[bagId].svg+'<span class="m-title">'+BAGS[bagId].label+'</span><button class="m-close" aria-label="Close">&times;</button></div>';
+    html += '<div class="m-count">'+count+(count===1?' item packed':' items packed')+'</div>';
+    if(!keys.length){ html += '<div class="m-empty">Nothing packed in here yet. Drag items onto this bag to fill it.</div>'; }
+    else {
+      keys.forEach(function(k){
+        html += '<div class="m-sub">'+k+'</div>';
+        groups[k].forEach(function(m){ html += '<div class="m-item"><i class="ti '+m.icon+' mi"></i>'+m.name+'<button class="m-un" data-id="'+m.id+'">Remove</button></div>'; });
+      });
+    }
+    box.innerHTML = html;
+    box.querySelector('.m-close').onclick = function(){ scPack.querySelector('#modal').classList.remove('open'); };
+    box.querySelectorAll('.m-un').forEach(function(b){ b.onclick = function(){ state.items[b.dataset.id]='available'; saveState(); refresh(); openContents(bagId); }; });
+    scPack.querySelector('#modal').classList.add('open');
+  }
+
+  loadState().then(function(restored){
+    updateShareVisibility();
+    if(restored){
+      buildPack();
+      show(scPack);
+    } else {
+      show(scSeason);
+    }
+  });
+})();
+</script>
+</body>
+</html>
