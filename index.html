@@ -42,15 +42,6 @@
   .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
   #app .lead { text-align:center; font-size:15px; color:var(--text-secondary); margin:0 auto 1.75rem; }
-  .season-center { min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .season-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; width:100%; max-width:420px; margin:0 auto; }
-  .season-card { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:2rem 1rem; background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; cursor:pointer; animation:bob 3.6s ease-in-out infinite; transition:transform .18s ease, border-color .18s ease; }
-  .season-card:nth-child(2){ animation-delay:.5s; }
-  .season-card i { font-size:44px; color:var(--text-secondary); transition:color .18s ease; }
-  .season-card span { font-size:15px; color:var(--text-primary); }
-  .season-card:hover { transform:translateY(-6px) scale(1.05); border-color:var(--border-accent); animation-play-state:paused; }
-  .season-card[data-season="summer"]:hover i { color:#F97316; }
-  .season-card[data-season="winter"]:hover i { color:#378ADD; }
 
   #screen-bags, #screen-pack { padding:0 10px; }
 
@@ -101,12 +92,14 @@
   .drawer-body { display:none; padding:4px 15px 15px; }
   .drawer.open .drawer-body { display:block; }
   .subhead { font-size:12px; color:var(--text-muted); margin:12px 0 8px; }
-  .chip-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(90px,1fr)); gap:8px; }
-  .chip { position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; padding:11px 6px 9px; background:var(--surface-1); border:0.5px solid var(--border); border-radius:10px; cursor:grab; text-align:center; transition:border-color .15s ease, transform .1s ease; }
+  .chip-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(100px,1fr)); gap:8px; }
+  .chip { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:14px 6px 10px; background:var(--surface-1); border:0.5px solid var(--border); border-radius:10px; cursor:grab; text-align:center; transition:border-color .15s ease, transform .1s ease; }
   .chip:hover { border-color:var(--border-accent); }
   .chip:active { cursor:grabbing; transform:scale(.96); }
-  .chip i { font-size:22px; color:var(--text-secondary); }
-  .chip .nm { font-size:11px; color:var(--text-primary); line-height:1.25; }
+  .chip i { font-size:40px; color:var(--text-secondary); }
+  i.ico { display:inline-flex; font-style:normal; line-height:1; }
+  i.ico svg { display:block; }
+  .chip .nm { font-size:10px; color:var(--text-primary); line-height:1.25; }
   .chip .qty { position:absolute; top:4px; right:6px; font-size:10px; color:var(--text-muted); }
 
   .bin { margin-top:14px; border:1px dashed var(--border-strong); border-radius:12px; padding:10px 14px; background:var(--surface-1); transition:border-color .2s ease, background .2s ease; }
@@ -147,6 +140,141 @@
   .modal-box .m-un:hover { border-color:var(--border-danger); color:var(--text-danger); }
   .modal-box .m-empty { font-size:13px; color:var(--text-muted); padding:12px 0; }
 
+  .studio { margin-top:14px; border:0.5px solid var(--border); border-radius:12px; background:var(--surface-2); padding:14px 16px; }
+  .studio-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .studio-head b { font-size:15px; font-weight:500; }
+  .studio-dim { font-size:12px; color:var(--text-muted); }
+  .studio-msg { font-size:12px; color:var(--text-danger); opacity:0; transition:opacity .2s ease; }
+  .studio-msg.show { opacity:1; }
+  #studio-close { margin-left:auto; }
+  .pal { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 4px; }
+  .pal-tile { display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 10px; border:0.5px solid var(--border); border-radius:10px; background:var(--surface-1); cursor:grab; font-size:11px; color:var(--text-primary); touch-action:none; user-select:none; }
+  .pal-tile:hover { border-color:var(--border-accent); }
+  .pal-tile .mini { display:block; border:1.5px solid var(--text-secondary); border-radius:3px; background:var(--surface-2); }
+  .pal-tile .mini.kind-misc { border-style:dashed; }
+  .pal-tile .mini.kind-wash { background:repeating-linear-gradient(45deg, #f4f4f2 0 3px, #dcdcd8 3px 4px); border-color:#2456c8; border-radius:6px; box-shadow:inset 0 2px 0 #2456c8; }
+  .pal-tile .mini.kind-hard { background:#262624; border-color:#262624; border-radius:7px; }
+  .pal-tile .mini.kind-hard-grey { background:#c3c3bf; border-color:#a9a9a4; border-radius:7px; }
+  .pal-tile .mini.kind-tech { background:linear-gradient(#5f5e5a 0 62%, #1f1f1d 62%); border-color:#1f1f1d; border-radius:6px; }
+  .pal-dim { color:var(--text-muted); font-size:10.5px; }
+  /* 3D bag scene: tilted and zipped shut, then it unzips, the lid swings open flat and the bag settles top-down */
+  .stage { perspective:1600px; perspective-origin:50% 30%; display:flex; justify-content:center; padding:20px 0 10px; }
+  .scene { position:relative; transform-style:preserve-3d; transform:translateY(30px) rotateX(38deg) scale(.72); opacity:0; transition:opacity .3s ease, transform 1s cubic-bezier(.2,.8,.2,1) .95s; }
+  .scene.open { transform:none; opacity:1; }
+  .shell { position:relative; transform-style:preserve-3d; box-shadow:0 18px 30px -12px rgba(0,0,0,.45); }
+  .shell.suitcase { border-radius:18px; }
+  .shell.backpack { border-radius:46px 46px 22px 22px; }
+  .shell .rimshade { position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(160deg, rgba(255,255,255,.18), rgba(0,0,0,.18)); }
+  .wall { position:absolute; left:0; right:0; top:100%; transform-origin:50% 0; transform:rotateX(-90deg); border-radius:0 0 14px 14px; background:linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.4)); }
+  .interior { position:relative; border-radius:12px; background-image:linear-gradient(rgba(0,0,0,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.07) 1px, transparent 1px); box-shadow:inset 0 3px 14px rgba(0,0,0,.35), inset 0 0 0 1px rgba(0,0,0,.15); }
+  .shell.backpack .interior { border-radius:36px 36px 14px 14px; }
+  .lid { position:absolute; inset:0; border-radius:inherit; transform-style:preserve-3d; transition:transform 1.1s cubic-bezier(.45,.05,.25,1) .65s; }
+  .shell.suitcase .lid { transform-origin:50% 0; }
+  .shell.backpack .lid { transform-origin:50% 100%; }
+  .scene.open .shell.suitcase .lid { transform:rotateX(180deg); }
+  .scene.open .shell.backpack .lid { transform:rotateX(-180deg); }
+  .lid-face { position:absolute; inset:0; box-sizing:border-box; border-radius:inherit; backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden; }
+  .lid-out { display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.75); font-size:13px; letter-spacing:.06em; }
+  .lid-out.ribs { background-image:repeating-linear-gradient(90deg, rgba(0,0,0,.0) 0 22px, rgba(0,0,0,.12) 22px 24px, rgba(255,255,255,.06) 24px 26px); }
+  .lid-out .pocket { position:absolute; left:18%; right:18%; top:38%; bottom:12%; border-radius:16px; background:rgba(255,255,255,.06); box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12); }
+  .lid-out .patch { position:absolute; top:20%; left:50%; width:28px; height:28px; margin-left:-14px; border-radius:50%; background:rgba(255,255,255,.14); }
+  .lid-out span { position:relative; }
+  .lid-in { transform:rotateX(180deg); }
+  .lid-in .mesh { position:absolute; inset:9%; border-radius:12px; background-image:linear-gradient(45deg, rgba(0,0,0,.09) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.09) 75%), linear-gradient(45deg, rgba(0,0,0,.09) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.09) 75%); background-size:8px 8px; background-position:0 0, 4px 4px; box-shadow:inset 0 0 0 2px rgba(0,0,0,.18); }
+  .lid-in .mesh::after { content:''; position:absolute; left:6%; right:6%; top:10px; border-top:2px dotted rgba(0,0,0,.35); }
+  .lid-in .slot { position:absolute; bottom:9%; height:22%; width:26%; border-radius:8px; background:rgba(0,0,0,.08); box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.18); }
+  .zip { position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; }
+  .zip .teeth { fill:none; stroke:rgba(255,255,255,.28); stroke-width:3; stroke-dasharray:1.2 1.2; }
+  .zip .shut { fill:none; stroke:#c9c7bd; stroke-width:3.5; stroke-dasharray:100 100; stroke-dashoffset:0; transition:stroke-dashoffset .6s ease-in .15s; }
+  .scene.open .zip .shut { stroke-dashoffset:-100; }
+  .handle { position:absolute; background:#1f1f1d; border-radius:8px; box-shadow:inset 0 0 0 2px rgba(255,255,255,.08); }
+  .wheel { position:absolute; width:16px; height:16px; border-radius:50%; background:#1a1a18; box-shadow:inset 0 0 0 3px #3a3a37; }
+  .strap { position:absolute; top:22%; width:16px; height:58%; border-radius:8px; background:#1f1f1d; z-index:-1; }
+  .ghost { position:absolute; display:none; box-sizing:border-box; border-radius:8px; border:2px dashed; pointer-events:none; z-index:5; align-items:center; justify-content:center; font-size:11px; font-weight:500; transition:left .06s linear, top .06s linear, width .12s ease, height .12s ease; }
+  .ghost.ok { display:flex; border-color:#1D9E75; background:rgba(29,158,117,.2); color:#0F6E56; box-shadow:0 0 0 4px rgba(29,158,117,.18), 0 0 18px rgba(29,158,117,.45); }
+  .ghost.bad { display:flex; border-color:#E24B4A; background:rgba(226,75,74,.18); color:#A32D2D; box-shadow:0 0 0 4px rgba(226,75,74,.16), 0 0 18px rgba(226,75,74,.4); }
+  .flyer { position:fixed; z-index:200; pointer-events:none; box-sizing:border-box; border:1.5px solid #5F5E5A; border-radius:8px; background:rgba(255,255,255,.75); opacity:.85; display:flex; align-items:center; justify-content:center; font-size:11px; color:#1a1a18; box-shadow:0 8px 20px rgba(0,0,0,.25); transition:width .12s ease, height .12s ease; }
+  .flyer.hidden { opacity:0; }
+  .cube.lifting { opacity:.25; }
+  .hanger { position:absolute; top:46px; width:132px; min-height:150px; padding:30px 10px 12px; z-index:2; box-sizing:border-box; border-radius:20px 20px 30px 30px; color:#fff; font-size:11px; box-shadow:0 10px 18px -8px rgba(0,0,0,.45), inset 0 -6px 14px rgba(0,0,0,.18); background-image:radial-gradient(circle at 50% 50%, rgba(255,255,255,.09) 1.2px, transparent 1.6px); background-size:7px 6px; transition:box-shadow .15s ease, transform .15s ease; }
+  .hanger.look-trtl { background-color:#159a8e; }
+  .hanger.look-trtl::before { content:''; position:absolute; left:-36px; top:6px; width:56px; height:12px; border-radius:6px; background:#1f1f1d; transform:rotate(20deg); transform-origin:right center; z-index:-1; }
+  .hanger.look-trtl::after { content:''; position:absolute; left:14px; right:14px; top:14px; border-top:2px solid rgba(0,0,0,.45); border-radius:2px; }
+  .hanger.look-wallet { width:124px; min-height:172px; padding:16px 12px 12px; border-radius:10px 14px 14px 10px; background-color:#222220; background-image:radial-gradient(circle, rgba(255,255,255,.06) 0.8px, transparent 1.1px); background-size:4px 4px; }
+  .hanger.look-wallet::after { content:''; position:absolute; inset:6px; border:1px dashed rgba(255,255,255,.22); border-radius:7px; pointer-events:none; }
+  .hanger.look-wallet .hb { display:none; }
+  .hanger.drop-ready { transform:scale(1.04); box-shadow:0 0 0 3px #fff, 0 0 0 5px var(--border-accent), 0 10px 18px -8px rgba(0,0,0,.45); }
+  .hanger .hb { position:absolute; right:10px; bottom:10px; width:30px; height:26px; border-radius:7px; background:#6b6a66; color:#e8e8e6; font-size:9px; font-weight:600; display:flex; align-items:center; justify-content:center; letter-spacing:.02em; }
+  .hanger .hl { font-weight:600; margin-bottom:6px; }
+  .hanger .hi { display:flex; align-items:center; gap:5px; padding:2px 0; font-size:11px; }
+  .hanger .hi i { font-size:14px; } .hanger .hi .hx { margin-left:auto; border:none; background:none; color:#fff; cursor:pointer; font-size:14px; padding:0 2px; opacity:.8; }
+  .hanger .he { opacity:.75; font-style:italic; }
+  .cube.empty { background:rgba(255,255,255,.35) !important; border:2px solid #1a1a18 !important; color:#1a1a18 !important; }
+  .cube.sel { box-shadow:0 0 0 3px #534AB7; }
+  .cube .rolls { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  .cube .cube-bar, .cube .status, .cube .empty-msg { position:relative; z-index:1; }
+  .cube .empty-msg { margin:auto; font-size:11px; opacity:.7; padding-bottom:14px; }
+  .cube .status { position:absolute; left:4px; right:4px; bottom:4px; padding:2px 6px; border-radius:6px; background:rgba(255,255,255,.92); text-align:center; }
+  .cube.over .status { color:#A32D2D; } .cube.snug .status { color:#854F0B; }
+  .cube-editor { margin:10px auto 6px; max-width:560px; border:0.5px solid var(--border); border-radius:10px; background:var(--surface-1); padding:10px 12px; }
+  .ce-head { display:flex; align-items:center; gap:8px; font-size:13px; flex-wrap:wrap; }
+  .ce-head .pct { margin-left:auto; font-size:12px; color:var(--text-muted); }
+  .ce-status { font-size:12px; font-style:italic; margin-top:3px; }
+  .ce-status.over { color:var(--text-danger); } .ce-status.snug { color:#854F0B; }
+  .ce-meter { height:5px; border-radius:3px; background:var(--surface-2); overflow:hidden; margin:6px 0 4px; }
+  .ce-meter i { display:block; height:100%; background:#1D9E75; }
+  .ce-meter.snug i { background:#EF9F27; } .ce-meter.over i { background:#E24B4A; }
+  .ce-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-top:0.5px solid var(--border); font-size:13px; }
+  .ce-row .sw { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+  .ce-row .rec { font-size:11px; color:var(--text-muted); margin-left:auto; }
+  .stepper { display:flex; align-items:center; border:0.5px solid var(--border-strong); border-radius:8px; overflow:hidden; }
+  .stepper button { width:26px; height:26px; border:none; background:var(--surface-2); cursor:pointer; font-size:15px; color:var(--text-primary); }
+  .stepper button:hover { background:var(--border); }
+  .stepper input { width:38px; height:26px; border:none; text-align:center; font-size:13px; background:var(--surface-1); color:var(--text-primary); }
+  .ce-out { border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:16px; }
+  .ce-out:hover { color:var(--text-danger); }
+  .ce-empty { font-size:12px; color:var(--text-muted); padding:4px 0; }
+  .rec-box { margin-top:12px; border:0.5px solid var(--border); border-radius:12px; background:var(--surface-2); overflow:hidden; }
+  .rec-box .drawer-head { width:100%; }
+  .rec-list { display:none; padding:4px 14px 12px; }
+  .rec-box.open .rec-list { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:4px 16px; }
+  .rec-item { display:flex; align-items:center; gap:8px; font-size:13px; padding:5px 0; border-bottom:0.5px solid var(--border); }
+  .rec-item .rq { margin-left:auto; font-size:12px; color:var(--text-secondary); }
+  .rec-item.met .rq { color:#0F6E56; }
+  .lidflat { position:absolute; left:0; box-sizing:border-box; border-radius:18px; display:none; box-shadow:0 -10px 24px -14px rgba(0,0,0,.4); }
+  .lidflat .rimshade { border-radius:18px; }
+  .scene.settled .lidflat { display:block; }
+  .scene.settled .shell.suitcase .lid { visibility:hidden; }
+  .side-tag { position:absolute; right:8px; bottom:6px; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:rgba(0,0,0,.3); pointer-events:none; }
+  .cube.landed { animation:land .35s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes land { 0%{ transform:scale(1.08); } 100%{ transform:scale(1); } }
+  body.cube-dragging, body.cube-dragging * { cursor:grabbing !important; user-select:none; }
+  .cube { position:absolute; box-sizing:border-box; border:1.5px solid; border-radius:8px; display:flex; flex-direction:column; overflow:hidden; font-size:11px; transition:box-shadow .15s ease; }
+  .cube.kind-misc { border-style:dashed; }
+  .cube.snug { box-shadow:0 0 0 2px #EF9F27; }
+  .cube.over { box-shadow:0 0 0 2px #E24B4A; }
+  .cube.drop-hover { box-shadow:0 0 0 3px var(--border-accent); }
+  .cube-bar { display:flex; align-items:center; gap:4px; padding:3px 6px; cursor:grab; touch-action:none; user-select:none; font-weight:500; background:rgba(255,255,255,.45); white-space:nowrap; }
+  .cube.kind-wash { border-radius:12px; background:repeating-linear-gradient(45deg, #f7f7f5 0 5px, #e1e1dd 5px 6px) !important; border:2px solid #c9c9c4 !important; box-shadow:inset 0 3px 0 #2456c8; }
+  .cube.kind-wash .cube-bar { background:rgba(36,86,200,.12); }
+  .cube.kind-hard, .cube.kind-hard-grey { border-radius:16px; background-size:4px 4px !important; }
+  .cube.kind-hard { background:#262624 radial-gradient(circle, rgba(255,255,255,.08) .8px, transparent 1.1px) !important; border:2px solid #111 !important; box-shadow:inset 0 0 0 3px #262624, inset 0 0 0 4px rgba(255,255,255,.18); }
+  .cube.kind-hard-grey { background:#c3c3bf radial-gradient(circle, rgba(0,0,0,.08) .8px, transparent 1.1px) !important; border:2px solid #9e9e99 !important; box-shadow:inset 0 0 0 3px #c3c3bf, inset 0 0 0 4px rgba(0,0,0,.15); }
+  .cube.kind-hard .cube-bar { background:rgba(255,255,255,.1); }
+  .cube.kind-tech { border-radius:14px; background:linear-gradient(#5f5e5a 0 64%, #1f1f1d 64%) !important; border:2px dashed #1f1f1d !important; outline:1.5px solid #1f1f1d; outline-offset:-1px; }
+  .cube.kind-tech .cube-bar { background:rgba(255,255,255,.1); }
+  .cube-bar .dim { opacity:.6; font-weight:400; }
+  .cube-bar .lbl { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  .cube-x, .cube-rot { flex-shrink:0; border:none; background:none; cursor:pointer; font-size:15px; line-height:1; color:inherit; padding:0 2px; }
+  .cube-body { padding:4px 6px; display:flex; flex-direction:column; gap:3px; min-height:0; }
+  .cube select { font-size:11px; border:0.5px solid rgba(0,0,0,.2); border-radius:6px; background:#fff; color:#1a1a18; padding:1px 4px; max-width:100%; }
+  .fillrow { display:flex; align-items:center; gap:4px; }
+  .fillrow .cap { width:42px; height:20px; font-size:11px; border:0.5px solid rgba(0,0,0,.2); border-radius:5px; padding:0 4px; background:#fff; color:#1a1a18; }
+  .meter { height:4px; background:rgba(0,0,0,.12); border-radius:2px; overflow:hidden; }
+  .meter i { display:block; height:100%; background:currentColor; }
+  .cube .status { font-size:10.5px; font-style:italic; }
+  .cube .names { font-size:10.5px; opacity:.85; overflow:hidden; }
+  .studio-hint { font-size:12px; color:var(--text-muted); text-align:center; }
   .empty-note { font-size:13px; color:var(--text-muted); text-align:center; padding:1.5rem 0; }
   @keyframes bob { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
   @keyframes shake { 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-6px);} 40%,80%{transform:translateX(6px);} }
@@ -163,23 +291,7 @@
   </div>
 
   <div id="app" style="position:relative; min-height:360px;">
-  <h2 class="sr-only">Interactive holiday packing app: choose a season, pick up to three bags, then drag items from the drawers into each bag.</h2>
-
-  <div id="screen-season" class="screen">
-    <div class="season-center">
-      <p class="lead">Are you packing for a summer or a winter holiday?</p>
-      <div class="season-grid">
-        <button class="season-card" data-season="summer">
-          <i class="ti ti-sun" aria-hidden="true"></i>
-          <span>Summer</span>
-        </button>
-        <button class="season-card" data-season="winter">
-          <i class="ti ti-snowflake" aria-hidden="true"></i>
-          <span>Winter</span>
-        </button>
-      </div>
-    </div>
-  </div>
+  <h2 class="sr-only">Interactive holiday packing app: pick up to three bags, then drag items from the drawers into each bag.</h2>
 
   <div id="screen-bags" class="screen" style="display:none;"></div>
   <div id="screen-pack" class="screen" style="display:none;"></div>
@@ -203,6 +315,128 @@
     'crossbody': { label:'Lululemon — crossbody', svg:'<svg viewBox="0 0 100 130" width="48" height="40"><rect x="0" y="58" width="20" height="13" rx="3" fill="#161616"/><rect x="80" y="58" width="20" height="13" rx="3" fill="#161616"/><rect x="16" y="44" width="68" height="48" rx="15" fill="#1c1c1c"/><rect x="16" y="44" width="68" height="48" rx="15" fill="none" stroke="#000" stroke-width="1"/><rect x="22" y="58" width="7" height="13" rx="1.5" fill="#2a2a2a"/><line x1="26" y1="71" x2="22" y2="80" stroke="#555" stroke-width="2" stroke-linecap="round"/><circle cx="70" cy="78" r="4" fill="#8a8a8a"/></svg>' }
   };
   var BAG_ORDER = ['july-large','july-small','lynxcher','nordace','crossbody'];
+  var CUBE_BAGS = ['lynxcher','july-small','july-large'];
+  var BAG_DIMS = {
+    'lynxcher':   { l:43, w:33, d:18, style:'backpack', color:'#2c2c2a', lining:'#d6d5d0', note:'from 45 × 36 × 20 cm outside' },
+    'july-small': { l:46.5, w:35.5, d:19, style:'suitcase', color:'#6E7457', lining:'#e6e5df', note:'Carry On Light, 19 cm deep' },
+    'july-large': { l:61, w:45, d:28, style:'suitcase', color:'#6E7457', lining:'#e6e5df', note:'Checked Expandable, 28 cm deep (32 expanded)' }
+  };
+  // Things that travel outside a bag: drop spots beside it, no size limit
+  var HANGERS = {
+    'lynxcher': [
+      { id:'trtl', label:'TRTL pillow pouch', side:'right', look:'trtl', hint:'Hangs outside. Drop items here' },
+      { id:'wallet', label:'Travel wallet', side:'left', look:'wallet', hint:'Passport, cards and documents' }
+    ]
+  };
+  function hangerFor(b, spot){ var r=null; (HANGERS[b]||[]).forEach(function(h){ if(h.id===spot) r=h; }); return r; }
+  var CUBE_TYPES = {
+    'medium': { label:'Medium cube',  w:37, h:25, kind:'cube', cat:'T-shirts' },
+    'small':  { label:'Small cube',   w:27, h:19, kind:'cube', cat:'Underwear' },
+    'shoes':  { label:'Shoe cube',    w:37, h:17, kind:'cube', cat:'Shoes' },
+    'misc-s': { label:'Misc, small',  w:27, h:19, kind:'misc', cat:'Misc' },
+    'misc-m': { label:'Misc, medium', w:37, h:25, kind:'misc', cat:'Misc' },
+    'tech':   { label:'Belkin tech pouch', w:18, h:12.5, kind:'tech', cat:'Tech' },
+    'wash':   { label:'Toiletry bag', w:20, h:8, kind:'wash', cat:'Misc' },
+    'watch':  { label:'Watch case', w:15, h:10, kind:'hard', cat:'Tech' },
+    'shave-black': { label:'Shave case, black', w:18, h:8, kind:'hard', cat:'Misc' },
+    'shave-grey':  { label:'Shave case, grey', w:18, h:8, kind:'hard-grey', cat:'Misc' }
+  };
+  var CATS = {
+    'Underwear': ['#FBEAF0','#993556'],
+    'Socks':     ['#E1F5EE','#0F6E56'],
+    'Shirts':    ['#E6F1FB','#185FA5'],
+    'T-shirts':  ['#EEEDFE','#534AB7'],
+    'Pants':     ['#FAEEDA','#854F0B'],
+    'Shoes':     ['#F1EFE8','#5F5E5A'],
+    'Misc':      ['#ffffff','#5F5E5A'],
+    'Tech':      ['#2c2c2a','#e8e8e6']
+  };
+  // How each item packs: a = cm along the cube's long side, b = cm across it, per = units per count (a pair of shoes = 2)
+  var ROLL_SPECS = {
+    'T-shirts':{a:5,b:24}, 'Button Shirts':{a:6,b:24}, 'Long Sleeve':{a:6,b:24}, 'Hoodie':{a:9,b:26}, 'Jacket':{a:10,b:26}, 'Thermals':{a:5,b:24}, 'Tank Tops':{a:4,b:22},
+    'Dress Shorts':{a:5,b:22}, 'Casual Shorts':{a:5,b:22}, 'Pants':{a:7,b:26}, 'Jeans':{a:8,b:26},
+    'Underwear':{a:4,b:9}, 'Socks':{a:3,b:6},
+    'Board Shorts':{a:5,b:22}, 'Beach Towel':{a:9,b:30}, 'Hat':{a:14,b:16,shape:'block'},
+    'Power Bank':{a:3,b:12,shape:'block'}, 'Laptop':{a:3,b:30,shape:'block'}, 'Smart Mouse':{a:4,b:7,shape:'block'}
+  };
+  var SHOE_SPEC = {a:29,b:8.5,per:2,shape:'shoe'}, BLOCK_SPEC = {a:6,b:10,shape:'block'}, CABLE_SPEC = {a:4,b:6,shape:'block'}, WASH_SPEC = {a:4,b:8,shape:'block'};
+  var ITEM_COLORS = {
+    'T-shirts':'#7F77DD', 'Button Shirts':'#378ADD', 'Long Sleeve':'#1D9E75', 'Hoodie':'#888780', 'Thermals':'#D85A30', 'Tank Tops':'#D4537E',
+    'Dress Shorts':'#BA7517', 'Casual Shorts':'#EF9F27', 'Pants':'#854F0B', 'Jeans':'#185FA5', 'Underwear':'#993556', 'Socks':'#0F6E56',
+    'Board Shorts':'#378ADD', 'Beach Towel':'#EF9F27'
+  };
+  var SPARE_COLORS = ['#5DCAA5','#AFA9EC','#F0997B','#85B7EB','#ED93B1','#97C459','#FAC775','#B4B2A9'];
+  // Custom outline icons drawn to match Jordan's icon sheets (24×24 grid, 1.6px stroke = currentColor, shown at 40px in the list). Items not listed keep their Tabler icon.
+  var ICON_SVG = {
+    'Airpod Pro':'<rect x="3.8" y="5.6" width="4.4" height="8.2" rx="2"/><path d="M8.2 6.4C9.6 4.8 11.6 3.8 13.9 3.8c3.3 0 5.6 2.5 5.6 5.8 0 1.2-.3 2.3-.8 3.3l-4.3 8a2 2 0 0 1-3.5-1.8l3.5-6.6c-2.1.2-4.2-.2-6.2-1"/><path d="M11.2 18.6l3 1.6"/><rect x="12.3" y="7.6" width="4" height="2.2" rx="1.1"/>',
+    'Speaker':'<rect x="2.5" y="7.5" width="19" height="9" rx="4.5"/><path d="M6.8 7.8v8.4M17.2 7.8v8.4"/><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="12" r=".5" fill="currentColor" stroke="none"/>',
+    'USB-A Cord':'<rect x="8.5" y="2" width="7" height="7" rx=".6"/><rect x="10" y="4.3" width="1.4" height="1.4" fill="currentColor" stroke="none"/><rect x="12.6" y="4.3" width="1.4" height="1.4" fill="currentColor" stroke="none"/><rect x="7.5" y="9" width="9" height="6.5" rx="1.8"/><rect x="10" y="15.5" width="4" height="3" rx=".6"/><path d="M11 18.5V22M13 18.5V22"/>',
+    'USB-C Cord':'<rect x="9.5" y="3" width="5" height="6" rx="1.2"/><rect x="7.5" y="9" width="9" height="6.5" rx="1.8"/><rect x="10" y="15.5" width="4" height="3" rx=".6"/><path d="M11 18.5V22M13 18.5V22"/>',
+    'Charging Brick':'<path d="M10 3v4M14 3v4"/><rect x="6" y="7" width="12" height="14" rx="2.5"/><rect x="9.3" y="15" width="5.4" height="2.2" rx="1.1"/>',
+    'Smart Mouse':'<rect x="6.5" y="3" width="11" height="18" rx="5.5"/><path d="M12 3v6M12 5.5v2"/>',
+    'Laptop':'<rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M3 18h18"/>',
+    'Jacket':'<path d="M8.5 4 5 5.5 3.5 12 3 19h2.5L7 13v7h10v-7l1.5 6H21l-.5-7L19 5.5 15.5 4"/><path d="M8.5 4 12 8l3.5-4M12 8v12M9 13.5h1.5M13.5 13.5H15"/>',
+    'Tongue Cleaner':'<path d="M7 21V12a5 5 0 0 1 10 0v9"/><path d="M9.5 21v-9a2.5 2.5 0 0 1 5 0v9"/>',
+    'Moisturiser':'<path d="M8 3h8l-1 3H9z"/><path d="M7 6h10l-1 14a1.5 1.5 0 0 1-1.5 1.4h-5A1.5 1.5 0 0 1 8 20z"/><path d="M10 12.5h4"/>',
+    'Caffeine':'<rect x="8" y="11" width="8" height="10" rx="1.5"/><path d="M10 11V9h4v2M11 9V5.5a1 1 0 0 1 2 0V9"/><ellipse cx="12" cy="16" rx="1.6" ry="2.2"/><path d="M12 13.8c-.6 1.4-.6 3 0 4.4"/>',
+    'Cologne':'<rect x="6" y="9" width="12" height="12" rx="2.5"/><path d="M10 9V6h4v3M9.5 6h5V3.5h-5z"/><path d="M9.5 14.5h5"/>',
+    'Shaver Charger':'<path d="M9 3v4M15 3v4"/><path d="M7 7h10v4a5 5 0 0 1-10 0z"/><path d="M12 16v2.5a2.5 2.5 0 0 0 2.5 2.5H19"/>',
+    'Nail Clippers':'<path d="M4 15h13a3 3 0 0 0 0-6H8"/><path d="M4 15 15 10.5"/><circle cx="17.5" cy="12" r="1"/><path d="M6 15v1.5h12"/>',
+    'Wet Wipes':'<rect x="3.5" y="8" width="17" height="11" rx="3"/><path d="M8.5 8v-1a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v1"/><path d="M9 12.5c1 1 2 1.5 3 1.5s2-.5 3-1.5"/>',
+    'Passport':'<rect x="5" y="2.5" width="14" height="19" rx="2"/><circle cx="12" cy="10" r="4.2"/><path d="M7.8 10h8.4M12 5.8c-1.3 1.2-2 2.6-2 4.2s.7 3 2 4.2c1.3-1.2 2-2.6 2-4.2s-.7-3-2-4.2zM9 18h6"/>',
+    'Plane Pillow':'<path d="M9.8 20.5c-3.7-1-6.3-4.3-6.3-8a8.5 8.5 0 0 1 17 0c0 3.7-2.6 7-6.3 8"/><path d="M9.8 20.5v-3.3a2.3 2.3 0 0 1-.4-4.3 2.6 2.6 0 0 1 5.2 0 2.3 2.3 0 0 1-.4 4.3v3.3z"/>',
+    'Tissues':'<rect x="4" y="12" width="16" height="8" rx="1.5"/><path d="M8.5 12c0-3 1.5-5.5 3.5-6.5 2 1 3.5 3.5 3.5 6.5M9 15h6"/>',
+    'Deodorant':'<rect x="6.5" y="10" width="7" height="11" rx="2"/><path d="M8.5 10V6.5h3V10M11.5 7.5h2"/><circle cx="16" cy="7.5" r=".5" fill="currentColor" stroke="none"/><circle cx="18" cy="5.5" r=".5" fill="currentColor" stroke="none"/><circle cx="18" cy="9.5" r=".5" fill="currentColor" stroke="none"/><circle cx="20" cy="7.5" r=".5" fill="currentColor" stroke="none"/><circle cx="20" cy="3.8" r=".5" fill="currentColor" stroke="none"/>',
+    'Hoodie':'<path d="M8.5 6.5 5 8 3.5 13.5 3 20h2.5L7 15.5V21h10v-5.5l1.5 4.5H21l-.5-6.5L19 8l-3.5-1.5"/><path d="M8.5 8V5.5a3.5 3.5 0 0 1 7 0V8M10.5 6.5V9M13.5 6.5V9"/><path d="M9 21v-2.5c0-.6.4-1 1-1h4c.6 0 1 .4 1 1V21"/>',
+    'Button Shirts':'<path d="M15 4l6 2v5h-3v8a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-8H3V6l6-2"/><path d="M9 4l1.5 2.5L12 5l1.5 1.5L15 4"/><circle cx="12" cy="10" r="0.9" fill="currentColor" stroke="none"/><circle cx="12" cy="13.2" r="0.9" fill="currentColor" stroke="none"/><circle cx="12" cy="16.4" r="0.9" fill="currentColor" stroke="none"/>',
+    'Long Sleeve':'<path d="M8.5 4 5 5.5 3.5 12 3 19h2.5L7 13v7h10v-7l1.5 6H21l-.5-7L19 5.5 15.5 4c-.5 1.5-1.8 2.3-3.5 2.3S9 5.5 8.5 4z"/>',
+    'Tank Tops':'<path d="M9 3v3c0 2-1.5 3-1.5 5v10h9V11c0-2-1.5-3-1.5-5V3"/><path d="M9 6c1 2.2 5 2.2 6 0"/>',
+    'Dress Shorts':'<path d="M5 5h14l1 13h-6l-2-7-2 7H4z"/><path d="M5 7.5h14"/><path d="M7.5 7.5c0 1.5.8 2.5 2 2.7M16.5 7.5c0 1.5-.8 2.5-2 2.7"/><circle cx="12" cy="6.2" r=".4"/>',
+    'Casual Shorts':'<path d="M5 5h14l1 13h-6l-2-7-2 7H4z"/><path d="M5 7.5h14"/><path d="M11.3 7.5 10.5 11M12.7 7.5l.8 3.5M10.6 7.5c.5-1 2.3-1 2.8 0"/>',
+    'Pants':'<path d="M6 3h12v18h-4.5L12 10l-1.5 11H6z"/><path d="M6 6h12"/>',
+    'Jeans':'<path d="M6 3h12v18h-4.5L12 10l-1.5 11H6z"/><path d="M6 6h12M7.5 6c0 1.6 1 2.6 2.5 2.6M16.5 6c0 1.6-1 2.6-2.5 2.6"/><circle cx="12" cy="4.5" r=".5" fill="currentColor" stroke="none"/>',
+    'Underwear':'<path d="M4 6h16v3H4z"/><path d="M4 9c2.6.4 4.6 3.2 5 8h6c.4-4.8 2.4-7.6 5-8"/>',
+    'Dress':'<path d="M2.5 17v-2c0-1.3 1-2.3 2.3-2.4l5.2-.6 3-3.3 3.3 1.4 3.4 3.1c1 .9 1.8 1.6 1.8 3V17z"/><path d="M2.5 17v1.2c0 .5.4.8.8.8H15M16.5 19h5v-2"/><path d="M12.3 10.5l1.5 1.2"/>',
+    'Casual':'<path d="M2.5 16.5v-2.3C2.5 12.9 3.5 12 5 12h4l4-3.5 3.2 1.4 3.3 2.8c1.3 1.1 2 2 2 3.6v.2z"/><path d="M2.5 16.5V19h19v-2.5"/><path d="M12.5 13.5l1.7-2.5M15.5 14l1.7-2.5"/>',
+    'Sandal':'<path d="M3 16.5c0-1 1-1.8 2-1.8h13c1.6 0 3 .6 3 1.8s-1 1.5-2 1.5H5c-1.2 0-2-.5-2-1.5z"/><path d="M8 14.7 9 10h4l1 4.7M14.3 11.2l3-3 2 2-1.8 4.5"/>',
+    'Water Shoes':'<path d="M2.5 16.5v-2.3C2.5 12.9 3.5 12 5 12h4l4-3.5 3.2 1.4 3.3 2.8c1.3 1.1 2 2 2 3.6v.2z"/><path d="M2.5 16.5V19h19v-2.5"/><circle cx="9" cy="14.4" r="0.8" fill="currentColor" stroke="none"/><circle cx="11.6" cy="14" r="0.8" fill="currentColor" stroke="none"/><circle cx="14.2" cy="13.6" r="0.8" fill="currentColor" stroke="none"/>',
+    'Beach Towel':'<circle cx="6" cy="11" r="3.6"/><path d="M6 11.8a.8.8 0 0 1 0-1.6 1.6 1.6 0 0 1 1.6 1.6"/><path d="M4.72 7.63 15.22 3.63A1.5 3.6 -21 0 1 17.78 10.37L7.28 14.37"/><path d="M11.85 4.71 14.55 11.81"/><path d="M6.4 14.6c2.4.1 4.1.6 5.5 2.2L21 13.2l-2.4-2.3"/><path d="M13.72 16.08l.48 1.2M16.00 15.18l.48 1.2M18.27 14.28l.48 1.2M20.27 13.49l.48 1.2"/>',
+    'Hat':'<ellipse cx="12" cy="15.5" rx="9.5" ry="2.8"/><path d="M6.5 14.6V12a5.5 5.5 0 0 1 11 0v2.6"/><path d="M6.6 12.4c3.5 1 7.3 1 10.8 0"/>',
+    'Thermals':'<path d="M8.5 4 5 5.5 3.5 12 3 19h2.5L7 13v7h10v-7l1.5 6H21l-.5-7L19 5.5 15.5 4c-.5 1.5-1.8 2.3-3.5 2.3S9 5.5 8.5 4z"/><path d="M10 14.5V17.5M12 14.5V17.5M14 14.5V17.5"/>',
+    'Beanie':'<path d="M5 15a7 7 0 0 1 14 0"/><rect x="4" y="15" width="16" height="4.5" rx="1.2"/><circle cx="12" cy="5.5" r="1.5"/><path d="M8 15v4.5M12 15v4.5M16 15v4.5"/>',
+    'Gloves':'<path d="M7 21v-3.8c-1.5-1.4-3-3.1-3-4.5a1.4 1.4 0 0 1 2.6-.8L8 13.6V7a4 4 0 0 1 8 0v7.6c0 1.5-.6 2.5-1.5 3.4V21z"/><path d="M7 18.2h7.5M12 3v7"/>',
+    'Lip Balm':'<path d="M9.5 8V5.5a2.5 2.5 0 0 1 5 0V8"/><rect x="8.5" y="8" width="7" height="13" rx="1.2"/><path d="M8.5 11.2h7"/>',
+    'Face Wash':'<rect x="7" y="10" width="10" height="11" rx="2"/><path d="M10 10V7h4v3M12 7V4h4.5v1.5"/><path d="M12 13.5c-1 1.3-1.5 2-1.5 2.7a1.5 1.5 0 0 0 3 0c0-.7-.5-1.4-1.5-2.7z"/>',
+    'Hyaluronic Acid':'<rect x="8" y="11" width="8" height="10" rx="1.5"/><path d="M10 11V9h4v2M11 9V5.5a1 1 0 0 1 2 0V9M10.5 16h3"/>',
+    'Sunscreen (Body)':'<rect x="6.5" y="8" width="11" height="13" rx="3"/><path d="M9.5 8V5h5v3"/><circle cx="12" cy="14.5" r="1.3"/><path d="M12 10.8v.6M12 17.6v.6M8.3 14.5h.6M15.1 14.5h.6"/>',
+    'Sunscreen (Face)':'<path d="M6.5 3h11L16 16H8z"/><path d="M9 16h6v4.5H9z"/><circle cx="12" cy="8.5" r="1.3"/><path d="M12 4.8v.6M12 11.6v.6M8.3 8.5h.6M15.1 8.5h.6"/>',
+    'Shampoo':'<rect x="7" y="8" width="10" height="13" rx="2.5"/><path d="M9.5 8V5h5v3"/><path d="M10.3 15.8c1-.5 1.5-1.4 1.5-2.5M12.3 16.8c1.2-.8 1.8-2 1.8-3.3M10 17.3"/>',
+    'Hair Gel':'<path d="M5 12h14v6.5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M4.5 10h15v2h-15z"/><path d="M8 10c0-1.5 1.5-2 3-2.2 1.2-.2 2-.8 2.5-1.8.5 1 1.5 1.5 2 2.3.3.6.5 1.1.5 1.7"/><path d="M9.5 16.5h5"/>',
+    'Toothbrush':'<circle cx="12" cy="4" r="1.5"/><path d="M12 5.5V10"/><rect x="10" y="10" width="4" height="11" rx="2"/><circle cx="12" cy="15" r=".8"/>',
+    'Tooth Paste':'<g transform="rotate(40 12 12)"><path d="M8.5 2.5h7l-1 12.5h-5z"/><path d="M10 15h4v4.5h-4z"/></g>',
+    'Mouth Plate':'<path d="M4.5 8c0 6 3 10 7.5 10s7.5-4 7.5-10"/><path d="M8 8c0 4 1.7 6.5 4 6.5s4-2.5 4-6.5"/><path d="M4.5 8H8M16 8h3.5"/>',
+    'Shaver':'<path d="M8 10h8l-1 9.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 19.5z"/><rect x="5.5" y="3" width="13" height="7" rx="3.5"/><circle cx="9.3" cy="6.5" r="0.9" fill="currentColor" stroke="none"/><circle cx="14.7" cy="6.5" r="0.9" fill="currentColor" stroke="none"/><circle cx="12" cy="15" r="0.9" fill="currentColor" stroke="none"/>',
+    'Comb/Brush':'<g transform="rotate(40 12 12)"><path d="M12.6 2c2.3 0 3.9 2.4 3.9 5.4 0 2.4-1.2 4.3-2.6 5.1-.6.3-.8.8-.8 1.4v6.3a1.5 1.5 0 0 1-3 0v-6.3c0-.6-.2-1.1-.8-1.4-1.4-.8-2.6-2.7-2.6-5.1C6.7 4.4 8.3 2 10.6 2z"/><path d="M6.9 4.2H4.6M6.7 6.3H4.4M6.7 8.4H4.4M7.1 10.4H4.8M13.3 4.6v1.4M13.3 7.2v1.4M10.6 5.6v1.4M10.6 8.2v1.4"/></g>',
+    'Tweezers':'<path d="M17.8 3.2 6.6 19.4M17.8 3.2l2.4 1.9L8 20.2M6.6 19.4l1.4.8"/>',
+    '2nd phone':'<rect x="5" y="3" width="10" height="17" rx="2"/><path d="M9 5.5h2"/><circle cx="16.5" cy="17" r="4" fill="var(--surface-1)"/><text x="16.5" y="19" font-size="5.5" font-weight="600" text-anchor="middle" fill="currentColor" stroke="none" font-family="system-ui, sans-serif">2</text>',
+    'Projector':'<rect x="3" y="7.5" width="18" height="9" rx="3"/><circle cx="16" cy="12" r="2.3"/><path d="M6.5 12h4M6.5 16.5V18M17.5 16.5V18"/>',
+    'AUX Cord':'<g transform="rotate(40 12 12)"><path d="M12 1.5V5M11 5h2"/><rect x="10.5" y="6" width="3" height="7" rx="1"/><path d="M11.2 13h1.6l-.3 2h-1z"/></g><path d="M8.6 16.7c-1.6 1.6-2 3.3-1 4.6"/>',
+    'Headphone Cord':'<path d="M5 13v-2a7 7 0 0 1 14 0v2"/><rect x="3.5" y="12.5" width="3.5" height="5.5" rx="1.5"/><rect x="17" y="12.5" width="3.5" height="5.5" rx="1.5"/><path d="M18.7 18c0 2-1.3 3-3 3h-1.2M14.5 21h-2.3"/>',
+    'Watch Charger':'<rect x="8" y="5.5" width="8" height="9" rx="2.5"/><path d="M10 5.5V3h4v2.5M10 14.5V16h4v-1.5"/><path d="M12.6 7.5l-1.8 2.6H13l-1.6 2.5"/><ellipse cx="12" cy="18.5" rx="6" ry="2"/><path d="M6 18.5v1c0 1.1 2.7 2 6 2s6-.9 6-2v-1"/>',
+    'Micro USB Cord':'<path d="M9.5 3h5v4h-5z"/><path d="M10.8 4.5h.4M12.8 4.5h.4"/><rect x="8" y="7" width="8" height="8" rx="2"/><path d="M11 15v2h2v-2M12 17v4"/>',
+    'Lightning Cord':'<rect x="9.5" y="3" width="5" height="6" rx="1.2"/><path d="M10.7 4.6v1.4M11.5 4.6v1.4M12.3 4.6v1.4M13.1 4.6v1.4" stroke-width=".7"/><rect x="7.5" y="9" width="9" height="6.5" rx="1.8"/><rect x="10" y="15.5" width="4" height="3" rx=".6"/><path d="M11 18.5V22M13 18.5V22"/>',
+    'Eye Mask':'<path d="M3 11.5C3 9 5 7.5 7.5 7.5h9C19 7.5 21 9 21 11.5S19 16 16.5 16c-2 0-3-1.5-4.5-1.5S9.5 16 7.5 16 3 14 3 11.5z"/><path d="M6.5 11.3c1 1 2.5 1 3.5 0M14 11.3c1 1 2.5 1 3.5 0"/>',
+    'Mouth Tape':'<path d="M2.5 12c2-3 4.5-4.5 6.5-4 1.2.3 2.2 1 3 1s1.8-.7 3-1c2-.5 4.5 1 6.5 4-2 3-5 5-9.5 5s-7.5-2-9.5-5z"/><rect x="8.5" y="10" width="7" height="4" rx=".6"/>',
+    'Sunglasses':'<path d="M2.5 9h19"/><path d="M3.3 9l.7 5a2.5 2.5 0 0 0 2.5 2h1.8a2.5 2.5 0 0 0 2.4-1.8L12 11l1.3 3.2a2.5 2.5 0 0 0 2.4 1.8h1.8a2.5 2.5 0 0 0 2.5-2l.7-5"/><path d="M6.5 13l2-2M15.5 13l2-2"/>',
+    'Phone Holder':'<rect x="8.5" y="3" width="7" height="12" rx="1.5" transform="rotate(-12 12 9)"/><path d="M5 20h14M6 20v-2.5h12V20M15 13.5l2 4"/>'
+  };
+  // Returns the icon markup for an item: a custom SVG when one exists, otherwise the Tabler font icon
+  function iconHtml(name, ti, cls){
+    var c=cls ? ' '+cls : '';
+    if(ICON_SVG[name]) return '<i class="ico'+c+'" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+ICON_SVG[name]+'</svg></i>';
+    return '<i class="ti '+ti+c+'" aria-hidden="true"></i>';
+  }
+
   var ICONS = ['ti-star','ti-gift','ti-camera','ti-map-pin','ti-umbrella','ti-key','ti-first-aid-kit','ti-plug','ti-music','ti-book','ti-shirt','ti-shoe','ti-bottle','ti-heart','ti-plane','ti-briefcase'];
 
   var DATA = [
@@ -210,10 +444,9 @@
       { name:'Tops', items:[
         {n:'T-shirts', i:'ti-shirt', s:'all', q:7},
         {n:'Button Shirts', i:'ti-hanger', s:'all', q:3},
-        {n:'Long Sleeve', i:'ti-shirt', s:'all', q:2},
-        {n:'Hoodie', i:'ti-jacket', s:'winter', q:1},
-        {n:'Thermals', i:'ti-temperature-snow', s:'winter', q:2},
-        {n:'Tank Tops', i:'ti-barbell', s:'summer', q:3}
+        {n:'Tank Tops', i:'ti-barbell', s:'all', q:3},
+        {n:'Hoodie', i:'ti-jacket', s:'all', q:1},
+        {n:'Jacket', i:'ti-jacket', s:'all', q:1}
       ]},
       { name:'Bottoms', items:[
         {n:'Dress Shorts', i:'ti-hanger', s:'summer', q:2},
@@ -229,91 +462,91 @@
         {n:'Dress', i:'ti-shoe', s:'all', q:1},
         {n:'Casual', i:'ti-shoe', s:'all', q:1},
         {n:'Sandal', i:'ti-shoe', s:'summer', q:1}
-      ]},
-      { name:'Beach', items:[
-        {n:'Board Shorts', i:'ti-swimming', s:'summer', q:1},
-        {n:'Beach Towel', i:'ti-beach', s:'summer', q:1},
-        {n:'Hat', i:'ti-beach', s:'summer', q:1},
-        {n:'Water Shoes', i:'ti-shoe', s:'summer', q:1},
-        {n:'Beach Games', i:'ti-ball-volleyball', s:'summer', q:1}
       ]}
     ]},
     { name:'Bathroom', icon:'ti-bath', subs:[
-      { name:'Skincare', items:[
-        {n:'Face Wash', i:'ti-droplet', s:'all', q:1},
-        {n:'Body Wash', i:'ti-droplet', s:'all', q:1},
-        {n:'Ordinary', i:'ti-droplet', s:'all', q:1},
-        {n:'Sunscreen (Body)', i:'ti-sun', s:'all', q:1},
-        {n:'Sunscreen (Face)', i:'ti-sun', s:'all', q:1},
-        {n:'Insect Repellent', i:'ti-bug', s:'summer', q:1}
-      ]},
-      { name:'Hair', items:[
-        {n:'Shampoo', i:'ti-droplet', s:'all', q:1},
-        {n:'Hair Gel', i:'ti-droplet', s:'all', q:1},
-        {n:'Comb/Brush', i:'ti-brush', s:'all', q:1}
-      ]},
-      { name:'Oral care', items:[
-        {n:'E-Toothbrush', i:'ti-dental', s:'all', q:1},
-        {n:'Tooth Paste', i:'ti-dental', s:'all', q:1}
-      ]},
       { name:'Mouth Plate', items:[
         {n:'Mouth Plate', i:'ti-dental', s:'all', q:1}
       ]},
+      { name:'Oral care', items:[
+        {n:'Toothbrush', i:'ti-dental', s:'all', q:1},
+        {n:'Tooth Paste', i:'ti-dental', s:'all', q:1},
+        {n:'Tongue Cleaner', i:'ti-dental', s:'all', q:1}
+      ]},
+      { name:'Skincare', items:[
+        {n:'Hyaluronic Acid', i:'ti-droplet', s:'all', q:1},
+        {n:'Moisturiser', i:'ti-droplet', s:'all', q:1},
+        {n:'Caffeine', i:'ti-droplet', s:'all', q:1}
+      ]},
+      { name:'Scent', items:[
+        {n:'Deodorant', i:'ti-spray', s:'all', q:1},
+        {n:'Cologne', i:'ti-perfume', s:'all', q:1}
+      ]},
+      { name:'Hair', items:[
+        {n:'Hair Gel', i:'ti-droplet', s:'all', q:1},
+        {n:'Comb/Brush', i:'ti-brush', s:'all', q:1}
+      ]},
+      { name:'Beard', items:[
+        {n:'Shaver', i:'ti-scissors', s:'all', q:1},
+        {n:'Shaver Charger', i:'ti-plug', s:'all', q:1}
+      ]},
       { name:'Grooming', items:[
-        {n:'Electric Shavers', i:'ti-scissors', s:'all', q:1},
-        {n:'Grooming Kit', i:'ti-scissors', s:'all', q:1},
-        {n:'Deodorant', i:'ti-spray', s:'all', q:1}
+        {n:'Tweezers', i:'ti-scissors', s:'all', q:1},
+        {n:'Nail Clippers', i:'ti-scissors', s:'all', q:1}
       ]},
-      { name:'Health', items:[
-        {n:'Medication', i:'ti-pill', s:'all', q:1},
-        {n:'Tweezers', i:'ti-scissors', s:'all', q:1}
-      ]},
-      { name:'Extras', items:[
-        {n:'Tissues', i:'ti-box', s:'all', q:1}
+      { name:'Extra', items:[
+        {n:'Tissues', i:'ti-box', s:'all', q:1},
+        {n:'Face Wash', i:'ti-droplet', s:'all', q:1},
+        {n:'Shampoo', i:'ti-droplet', s:'all', q:1},
+        {n:'Wet Wipes', i:'ti-box', s:'all', q:1}
       ]}
     ]},
-    { name:'Tech & travel', icon:'ti-plane', subs:[
-      { name:'Devices', items:[
-        {n:'Phone', i:'ti-device-mobile', s:'all', q:1},
-        {n:'2nd phone', i:'ti-device-mobile', s:'all', q:1},
+    { name:'Tech', icon:'ti-device-laptop', subs:[
+      { name:'Essentials', items:[
         {n:'Laptop', i:'ti-device-laptop', s:'all', q:1},
+        {n:'USB-A Cord', i:'ti-usb', s:'all', q:1},
+        {n:'USB-C Cord', i:'ti-usb', s:'all', q:1},
+        {n:'Lightning Cord', i:'ti-usb', s:'all', q:1},
+        {n:'Charging Brick', i:'ti-plug', s:'all', q:1},
+        {n:'Smart Mouse', i:'ti-mouse', s:'all', q:1},
+        {n:'Power Bank', i:'ti-battery', s:'all', q:1},
+        {n:'Phone', i:'ti-device-mobile', s:'all', q:1},
+        {n:'2nd phone', i:'ti-device-mobile', s:'all', q:1}
+      ]},
+      { name:'Devices', items:[
         {n:'Kindle', i:'ti-book', s:'all', q:1},
         {n:'Pixel Watch', i:'ti-device-watch', s:'all', q:1},
-        {n:'Nintendo Switch', i:'ti-device-gamepad', s:'all', q:1},
         {n:'Chromecast', i:'ti-cast', s:'all', q:1},
+        {n:'Airpod Pro', i:'ti-ear', s:'all', q:1}
+      ]},
+      { name:'Larger Devices', items:[
+        {n:'Nintendo Switch', i:'ti-device-gamepad', s:'all', q:1},
         {n:'Speaker', i:'ti-speakerphone', s:'all', q:1},
         {n:'BOSE Quiet', i:'ti-headphones', s:'all', q:1},
-        {n:'Airpod Pro', i:'ti-ear', s:'all', q:1},
         {n:'Projector', i:'ti-device-tv', s:'all', q:1}
       ]},
       { name:'Charging & cables', items:[
-        {n:'Power Bank', i:'ti-battery', s:'all', q:1},
-        {n:'USB-A Charger', i:'ti-usb', s:'all', q:1},
-        {n:'USB-C Charger', i:'ti-usb', s:'all', q:1},
         {n:'Universal Adaptor', i:'ti-plug', s:'all', q:1},
         {n:'AUX Cord', i:'ti-headphones', s:'all', q:1},
         {n:'Headphone Cord', i:'ti-headphones', s:'all', q:1},
         {n:'Watch Charger', i:'ti-battery', s:'all', q:1},
-        {n:'Micro USB Cord', i:'ti-usb', s:'all', q:1},
-        {n:'Thunderbolt Cord', i:'ti-usb', s:'all', q:1}
-      ]},
+        {n:'Micro USB Cord', i:'ti-usb', s:'all', q:1}
+      ]}
+    ]},
+    { name:'Travel', icon:'ti-plane', subs:[
       { name:'Documents & IDs', items:[
-        {n:'Passport', i:'ti-id', s:'all', q:1},
+        {n:'Passport', i:'ti-passport', s:'all', q:1},
         {n:'Credit Card', i:'ti-credit-card', s:'all', q:1},
         {n:'Drivers License', i:'ti-id', s:'all', q:1},
         {n:'Document Copy', i:'ti-file', s:'all', q:1},
-        {n:'Flight PDF save', i:'ti-file-text', s:'all', q:1}
+        {n:'Flight PDF save', i:'ti-file-download', s:'all', q:1}
       ]},
-      { name:'Flight comfort', items:[
+      { name:'Flight Comforts', items:[
         {n:'Plane Pillow', i:'ti-plane', s:'all', q:1},
         {n:'Eye Mask', i:'ti-eye', s:'all', q:1},
         {n:'Loop Earplug', i:'ti-ear', s:'all', q:1},
         {n:'Mouth Tape', i:'ti-dental', s:'all', q:1},
         {n:'Tune up Ball', i:'ti-ball-basketball', s:'all', q:1}
-      ]},
-      { name:'Eyewear', items:[
-        {n:'Glasses', i:'ti-eyeglass', s:'all', q:1},
-        {n:'Sunglasses', i:'ti-eyeglass', s:'all', q:1}
       ]},
       { name:'Carry & extras', items:[
         {n:'Water Bottle', i:'ti-bottle', s:'all', q:1},
@@ -322,6 +555,28 @@
         {n:'Tile(s)', i:'ti-map-pin', s:'all', q:3},
         {n:'Padlocks', i:'ti-lock', s:'all', q:3},
         {n:'Netflix/Youtube DL', i:'ti-download', s:'all', q:1}
+      ]},
+      { name:'Eyewear', items:[
+        {n:'Glasses', i:'ti-eyeglass-2', s:'all', q:1},
+        {n:'Sunglasses', i:'ti-eyeglass', s:'all', q:1}
+      ]}
+    ]},
+    { name:'Extras', icon:'ti-sparkles', subs:[
+      { name:'Summer', items:[
+        {n:'Board Shorts', i:'ti-swimming', s:'all', q:1},
+        {n:'Beach Towel', i:'ti-beach', s:'all', q:1},
+        {n:'Hat', i:'ti-beach', s:'all', q:1},
+        {n:'Water Shoes', i:'ti-shoe', s:'all', q:1},
+        {n:'Beach Games', i:'ti-ball-volleyball', s:'all', q:1},
+        {n:'Sunscreen (Body)', i:'ti-sun', s:'all', q:1},
+        {n:'Sunscreen (Face)', i:'ti-sun', s:'all', q:1},
+        {n:'Insect Repellent', i:'ti-bug', s:'all', q:1}
+      ]},
+      { name:'Winter', items:[
+        {n:'Thermals', i:'ti-temperature-snow', s:'all', q:2},
+        {n:'Beanie', i:'ti-hat', s:'all', q:1},
+        {n:'Gloves', i:'ti-hand-stop', s:'all', q:1},
+        {n:'Lip Balm', i:'ti-droplet', s:'all', q:1}
       ]}
     ]},
     { name:'Custom', icon:'ti-star', subs:[
@@ -329,39 +584,96 @@
     ]}
   ];
 
-  var state = { season:null, bags:[], items:{} };
+  var state = { bags:[], items:{}, cubes:{} };
   var META = {};
   function slug(x){ return x.toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
   DATA.forEach(function(d){ d.subs.forEach(function(sub){ sub.items.forEach(function(it){
     var id = slug(d.name+'-'+sub.name+'-'+it.n);
     it.id = id;
-    META[id] = { id:id, name:it.n, icon:it.i, sub:sub.name, domain:d.name };
+    META[id] = { id:id, name:it.n, icon:it.i, sub:sub.name, domain:d.name, q:it.q };
     state.items[id] = 'available';
   }); }); });
   var CUSTOM = null; DATA.forEach(function(d){ if(d.name==='Custom') CUSTOM = d.subs[0]; });
 
   function buildPayload(){
     return {
-      season: state.season,
       bags: state.bags,
       items: state.items,
+      cubes: state.cubes,
       custom: CUSTOM.items.map(function(it){ return {n:it.n, i:it.i, id:it.id}; })
     };
   }
 
+  // Items that moved drawers keep their packed state from older saved trips
+  var MOVED_IDS = {
+    'clothing-beach-board-shorts':'extras-summer-board-shorts', 'clothing-beach-beach-towel':'extras-summer-beach-towel',
+    'clothing-beach-hat':'extras-summer-hat', 'clothing-beach-water-shoes':'extras-summer-water-shoes',
+    'clothing-beach-beach-games':'extras-summer-beach-games', 'clothing-tops-thermals':'extras-winter-thermals',
+    'bathroom-skincare-sunscreen-body-':'extras-summer-sunscreen-body-',
+    'bathroom-skincare-sunscreen-face-':'extras-summer-sunscreen-face-',
+    'bathroom-skincare-insect-repellent':'extras-summer-insect-repellent',
+    'bathroom-skincare-face-wash':'bathroom-extra-face-wash',
+    'bathroom-skincare-ordinary':'bathroom-skincare-hyaluronic-acid',
+    'bathroom-hair-shampoo':'bathroom-extra-shampoo',
+    'bathroom-oral-care-e-toothbrush':'bathroom-oral-care-toothbrush',
+    'bathroom-grooming-electric-shavers':'bathroom-beard-shaver',
+    'bathroom-grooming-deodorant':'bathroom-scent-deodorant',
+    'bathroom-health-tweezers':'bathroom-grooming-tweezers',
+    'bathroom-extras-tissues':'bathroom-extra-tissues', 'tech-essentials-thunderbolt-cord':'tech-essentials-lightning-cord', 'tech-essentials-usb-a-usb-c':'tech-essentials-usb-a-cord', 'tech-essentials-usb-c-usb-c':'tech-essentials-usb-c-cord', 'tech-devices-phone':'tech-essentials-phone', 'tech-devices-2nd-phone':'tech-essentials-2nd-phone', 'tech-devices-nintendo-switch':'tech-larger-devices-nintendo-switch', 'tech-devices-speaker':'tech-larger-devices-speaker', 'tech-devices-bose-quiet':'tech-larger-devices-bose-quiet', 'tech-devices-projector':'tech-larger-devices-projector',
+    'tech-travel-devices-phone':'tech-essentials-phone',
+    'tech-travel-devices-2nd-phone':'tech-essentials-2nd-phone',
+    'tech-travel-devices-laptop':'tech-essentials-laptop',
+    'tech-travel-devices-kindle':'tech-devices-kindle',
+    'tech-travel-devices-pixel-watch':'tech-devices-pixel-watch',
+    'tech-travel-devices-nintendo-switch':'tech-larger-devices-nintendo-switch',
+    'tech-travel-devices-chromecast':'tech-devices-chromecast',
+    'tech-travel-devices-speaker':'tech-larger-devices-speaker',
+    'tech-travel-devices-bose-quiet':'tech-larger-devices-bose-quiet',
+    'tech-travel-devices-airpod-pro':'tech-devices-airpod-pro',
+    'tech-travel-devices-projector':'tech-larger-devices-projector',
+    'tech-travel-charging-cables-power-bank':'tech-essentials-power-bank',
+    'tech-travel-charging-cables-usb-a-charger':'tech-essentials-usb-a-cord',
+    'tech-travel-charging-cables-usb-c-charger':'tech-essentials-usb-c-cord',
+    'tech-travel-charging-cables-universal-adaptor':'tech-charging-cables-universal-adaptor',
+    'tech-travel-charging-cables-aux-cord':'tech-charging-cables-aux-cord',
+    'tech-travel-charging-cables-headphone-cord':'tech-charging-cables-headphone-cord',
+    'tech-travel-charging-cables-watch-charger':'tech-charging-cables-watch-charger',
+    'tech-travel-charging-cables-micro-usb-cord':'tech-charging-cables-micro-usb-cord',
+    'tech-travel-charging-cables-thunderbolt-cord':'tech-essentials-lightning-cord',
+    'tech-travel-documents-ids-passport':'travel-documents-ids-passport',
+    'tech-travel-documents-ids-credit-card':'travel-documents-ids-credit-card',
+    'tech-travel-documents-ids-drivers-license':'travel-documents-ids-drivers-license',
+    'tech-travel-documents-ids-document-copy':'travel-documents-ids-document-copy',
+    'tech-travel-documents-ids-flight-pdf-save':'travel-documents-ids-flight-pdf-save',
+    'tech-travel-flight-comfort-plane-pillow':'travel-flight-comforts-plane-pillow',
+    'tech-travel-flight-comfort-eye-mask':'travel-flight-comforts-eye-mask',
+    'tech-travel-flight-comfort-loop-earplug':'travel-flight-comforts-loop-earplug',
+    'tech-travel-flight-comfort-mouth-tape':'travel-flight-comforts-mouth-tape',
+    'tech-travel-flight-comfort-tune-up-ball':'travel-flight-comforts-tune-up-ball',
+    'tech-travel-eyewear-glasses':'travel-eyewear-glasses',
+    'tech-travel-eyewear-sunglasses':'travel-eyewear-sunglasses',
+    'tech-travel-carry-extras-water-bottle':'travel-carry-extras-water-bottle',
+    'tech-travel-carry-extras-phone-holder':'travel-carry-extras-phone-holder',
+    'tech-travel-carry-extras-note-book':'travel-carry-extras-note-book',
+    'tech-travel-carry-extras-tile-s-':'travel-carry-extras-tile-s-',
+    'tech-travel-carry-extras-padlocks':'travel-carry-extras-padlocks',
+    'tech-travel-carry-extras-netflix-youtube-dl':'travel-carry-extras-netflix-youtube-dl'
+  };
+
   function applyPayload(parsed){
-    if(!parsed || !parsed.season || !parsed.bags || !parsed.bags.length) return false;
+    if(!parsed || !parsed.bags || !parsed.bags.length) return false;
     (parsed.custom || []).forEach(function(c){
       if(META[c.id]) return;
       var it = { n:c.n, i:c.i, s:'all', q:1, id:c.id };
       CUSTOM.items.push(it);
       META[c.id] = { id:c.id, name:c.n, icon:c.i, sub:'Added items', domain:'Custom' };
     });
-    state.season = parsed.season;
     state.bags = parsed.bags;
+    state.cubes = parsed.cubes || {};
     Object.keys(META).forEach(function(id){ state.items[id] = 'available'; });
     Object.keys(parsed.items || {}).forEach(function(id){
-      if(META[id]) state.items[id] = parsed.items[id];
+      var to = MOVED_IDS[id] || id;
+      if(META[to]) state.items[to] = parsed.items[id];
     });
     return true;
   }
@@ -379,7 +691,7 @@
         if(!payload.new || !payload.new.state) return;
         applyingRemote = true;
         applyPayload(payload.new.state);
-        if(document.getElementById('dock')){ renderDrawers(); renderBin(); updateBadges(); }
+        if(document.getElementById('dock')){ renderDrawers(); renderBin(); updateBadges(); renderStudio(false); }
         else if(document.querySelector('.bag-grid')){ buildBags(); }
         applyingRemote = false;
       })
@@ -429,14 +741,15 @@
   }
 
   var draggingId = null;
-  var scSeason = document.getElementById('screen-season');
+  var dragKind = null, dragCube = null, dragOff = { x:0, y:0 };
+  var studioBag = null, hoverCube = null, flashTimer = null, lastPlaced = null, selCube = null;
   var scBags = document.getElementById('screen-bags');
   var scPack = document.getElementById('screen-pack');
   var resetBtn = document.getElementById('reset-btn');
   var shareBtn = document.getElementById('share-btn');
 
-  function show(el){ [scSeason,scBags,scPack].forEach(function(s){ s.style.display='none'; }); el.style.display='block'; }
-  function clearDrag(){ draggingId=null; document.body.classList.remove('dragging'); }
+  function show(el){ [scBags,scPack].forEach(function(s){ s.style.display='none'; }); el.style.display='block'; }
+  function clearDrag(){ draggingId=null; dragKind=null; document.body.classList.remove('dragging'); }
 
   shareBtn.addEventListener('click', function(){
     var url = window.location.href;
@@ -454,19 +767,13 @@
   resetBtn.addEventListener('click', function(){
     if(!confirm('Start a new trip? This clears your current packing progress.')) return;
     clearState();
-    state.season = null; state.bags = [];
+    state.bags = [];
     Object.keys(state.items).forEach(function(id){ state.items[id] = 'available'; });
     CUSTOM.items = [];
+    state.cubes = {}; studioBag = null;
     Object.keys(META).slice().forEach(function(id){ if(META[id].domain==='Custom') delete META[id]; });
     resetBtn.classList.remove('show');
     updateShareVisibility();
-    show(scSeason);
-  });
-
-  scSeason.addEventListener('click', function(e){
-    var c = e.target.closest('.season-card'); if(!c) return;
-    state.season = c.dataset.season;
-    saveState();
     buildBags();
     show(scBags);
   });
@@ -480,9 +787,8 @@
       html += '<button class="bag-card'+(sel?' selected':'')+'" data-bag="'+id+'">'+(sel?'<span class="check"><i class="ti ti-check"></i></span>':'')+BAGS[id].svg+'<span class="bag-label">'+BAGS[id].label+'</span></button>';
     });
     html += '</div>';
-    html += '<div class="btnrow"><button class="linkbtn" id="back-season"><i class="ti ti-arrow-left"></i> Season</button><button class="cta" id="to-pack"'+(state.bags.length?'':' disabled')+'>Start packing</button></div>';
+    html += '<div class="btnrow" style="justify-content:flex-end"><button class="cta" id="to-pack"'+(state.bags.length?'':' disabled')+'>Start packing</button></div>';
     scBags.innerHTML = html;
-    scBags.querySelector('#back-season').onclick = function(){ show(scSeason); };
     scBags.querySelector('#to-pack').onclick = function(){ if(state.bags.length){ saveState(); buildPack(); show(scPack); } };
     scBags.querySelectorAll('.bag-card').forEach(function(card){
       card.onclick = function(){
@@ -498,10 +804,11 @@
 
   function buildPack(){
     resetBtn.classList.add('show');
-    var seasonLabel = state.season.charAt(0).toUpperCase()+state.season.slice(1);
-    var html = '<div class="btnrow" style="margin-bottom:12px;"><button class="linkbtn" id="back-bags"><i class="ti ti-arrow-left"></i> Bags</button><span style="font-size:13px;color:var(--text-secondary);"><i class="ti ti-'+(state.season==='summer'?'sun':'snowflake')+'" style="vertical-align:-2px;margin-right:4px;"></i>'+seasonLabel+' trip</span></div>';
+    var html = '<div class="btnrow" style="margin-bottom:12px;"><button class="linkbtn" id="back-bags"><i class="ti ti-arrow-left"></i> Bags</button></div>';
     html += '<div id="dock-wrap" style="position:relative;"><div class="dock" id="dock"></div><div class="peek" id="peek"></div></div>';
+    html += '<div id="studio"></div>';
     html += '<div id="drawers"></div>';
+    html += '<div class="rec-box" id="rec"><button class="drawer-head" id="rec-head"><i class="ti ti-list-check dh-icon"></i>Recommended packing amount<i class="ti ti-chevron-down chev"></i></button><div class="rec-list" id="rec-list"></div></div>';
     html += '<div class="bin" id="bin"><div class="bin-head" id="bin-head"><i class="ti ti-trash"></i><span id="bin-label">Not this trip (0)</span><i class="ti ti-chevron-down" style="margin-left:auto;"></i></div><div class="bin-list" id="bin-list"></div></div>';
     html += '<div class="add-wrap"><button class="add-btn" id="add-btn"><i class="ti ti-plus"></i> Add an item</button><div class="add-form" id="add-form"><label>Item name</label><input type="text" id="add-name" placeholder="e.g. Snorkel" style="width:100%;" /><label style="margin-top:12px;">Choose an icon</label><div class="icon-pick" id="icon-pick"></div><div class="add-actions"><button class="linkbtn" id="add-cancel">Cancel</button><button class="cta" id="add-save">Add item</button></div></div></div>';
     html += '<div class="modal-overlay" id="modal"><div class="modal-box" id="modal-box"></div></div>';
@@ -520,7 +827,10 @@
       el.addEventListener('drop', function(e){ e.preventDefault(); el.classList.remove('drop-ready'); var item=draggingId; clearDrag(); if(item){ state.items[item] = {bag:id}; saveState(); refresh(); } });
       el.addEventListener('mouseenter', function(){ if(!document.body.classList.contains('dragging')) showPeek(id); });
       el.addEventListener('mouseleave', hidePeek);
-      el.addEventListener('click', function(){ if(!document.body.classList.contains('dragging')) openContents(id); });
+      el.addEventListener('click', function(){
+        if(document.body.classList.contains('dragging')) return;
+        if(CUBE_BAGS.indexOf(id)>-1) openStudio(id); else openContents(id);
+      });
       el.querySelector('.open-btn').addEventListener('click', function(ev){ ev.stopPropagation(); openContents(id); });
       dock.appendChild(el);
     });
@@ -530,7 +840,7 @@
     peek.addEventListener('mouseleave', function(){ peek.dataset.hold=''; hidePeek(); });
 
     var drawers = scPack.querySelector('#drawers');
-    drawers.addEventListener('dragstart', function(e){ var c=e.target.closest('.chip'); if(!c) return; draggingId=c.dataset.id; document.body.classList.add('dragging'); hidePeek(); });
+    drawers.addEventListener('dragstart', function(e){ var c=e.target.closest('.chip'); if(!c) return; draggingId=c.dataset.id; dragKind='item'; e.dataTransfer.setData('text/plain', c.dataset.id); document.body.classList.add('dragging'); hidePeek(); });
     drawers.addEventListener('dragend', function(){ clearDrag(); scPack.querySelectorAll('.drop-ready').forEach(function(x){x.classList.remove('drop-ready');}); });
     drawers.addEventListener('click', function(e){ var h=e.target.closest('.drawer-head'); if(h){ h.parentNode.classList.toggle('open'); } });
 
@@ -556,6 +866,8 @@
     var modal = scPack.querySelector('#modal');
     modal.addEventListener('click', function(e){ if(e.target===modal) modal.classList.remove('open'); });
 
+    wireStudio(scPack.querySelector('#studio'));
+    scPack.querySelector('#rec-head').addEventListener('click', function(){ scPack.querySelector('#rec').classList.toggle('open'); });
     refresh();
   }
 
@@ -571,8 +883,376 @@
     var cd = scPack.querySelector('.drawer[data-dom="Custom"]'); if(cd) cd.classList.add('open');
   }
 
-  function inSeason(it){ return it.s==='all' || it.s===state.season; }
-  function refresh(){ renderDrawers(); renderBin(); updateBadges(); saveState(); }
+  function bagCubes(b){ if(!state.cubes[b]) state.cubes[b]=[]; return state.cubes[b]; }
+  function findCube(b, id){ var r=null; bagCubes(b).forEach(function(c){ if(c.id===id) r=c; }); return r; }
+  function cubeEntries(c){ return Object.keys(state.items).filter(function(id){ var v=state.items[id]; return v && v.cube===c.id; }).map(function(id){ return { m:META[id], n:state.items[id].n||META[id].q||1 }; }); }
+  function specFor(m){ if(ROLL_SPECS[m.name]) return ROLL_SPECS[m.name]; if(m.sub==='Charging & cables' || /cord|usb|brick/i.test(m.name)) return CABLE_SPEC; if(m.domain==='Bathroom') return WASH_SPEC; if(m.sub==='Shoes' || /shoe/i.test(m.name)) return SHOE_SPEC; return BLOCK_SPEC; }
+  function colorFor(m){ if(ITEM_COLORS[m.name]) return ITEM_COLORS[m.name]; var h=0; for(var i=0;i<m.id.length;i++) h=(h*31+m.id.charCodeAt(i))>>>0; return SPARE_COLORS[h%SPARE_COLORS.length]; }
+  // Lays rolls out in columns along the cube's long side. Items of the same size share a
+  // column (e.g. two cables stacked side by side), so each colour band starts where the last left off.
+  function cubeLayout(c){
+    var long=Math.max(c.w,c.h), short=Math.min(c.w,c.h), cur=0, rolls=[], over=0, entries=cubeEntries(c), col=null;
+    entries.forEach(function(e){
+      var sp=specFor(e.m), per=sp.per||1, units=e.n*per, b=Math.min(sp.b, short), rpc=Math.max(1, Math.floor(short/b)), slot=short/rpc, overUnits=0;
+      if(!col || col.a!==sp.a || col.rpc!==rpc){ if(col) cur+=col.a; col={ a:sp.a, rpc:rpc, used:0 }; }
+      for(var i=0;i<units;i++){
+        if(col.used===rpc){ cur+=col.a; col.used=0; }
+        if(cur+sp.a>long+0.01){ overUnits++; continue; }
+        rolls.push({ x:cur, y:col.used*slot, a:sp.a, b:slot, col:colorFor(e.m), shape:sp.shape||'roll' });
+        col.used++;
+      }
+      over+=Math.ceil(overUnits/per);
+    });
+    var used=cur+(col && col.used ? col.a : 0);
+    return { rolls:rolls, over:over, ratio:used/long, count:entries.length };
+  }
+  function fillStatus(L){
+    if(L.over) return { cls:'over', text:'This won’t zip — '+L.over+' too many' };
+    if(L.ratio>=0.999) return { cls:'snug', text:'Full to the brim' };
+    if(L.ratio>=0.75) return { cls:'snug', text:'Getting snug in here…' };
+    return { cls:'', text:'' };
+  }
+  function rollsSvg(c, L){
+    var flip=c.w<c.h, g='';
+    L.rolls.forEach(function(r){
+      var x=r.x+0.25, y=r.y+0.25, w=r.a-0.5, h=r.b-0.5;
+      if(flip){ var t=x; x=y; y=t; t=w; w=h; h=t; }
+      var rx=r.shape==='roll' ? Math.min(w,h)/2 : (r.shape==='shoe' ? Math.min(w,h)/2.2 : 1);
+      g+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+rx+'" fill="'+r.col+'" stroke="rgba(0,0,0,.35)" stroke-width="0.15"/>';
+      if(r.shape==='roll'){
+        // a highlight down the length and a spiral hint at one end so it reads as a rolled garment
+        if(w<h) g+='<line x1="'+(x+w*0.32)+'" y1="'+(y+w*0.6)+'" x2="'+(x+w*0.32)+'" y2="'+(y+h-w*0.6)+'" stroke="rgba(255,255,255,.4)" stroke-width="0.35" stroke-linecap="round"/><path d="M'+(x+w*0.2)+' '+(y+w*0.75)+' q'+(w*0.3)+' '+(-w*0.35)+' '+(w*0.6)+' 0" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="0.2"/>';
+        else g+='<line x1="'+(x+h*0.6)+'" y1="'+(y+h*0.32)+'" x2="'+(x+w-h*0.6)+'" y2="'+(y+h*0.32)+'" stroke="rgba(255,255,255,.4)" stroke-width="0.35" stroke-linecap="round"/><path d="M'+(x+h*0.75)+' '+(y+h*0.2)+' q'+(-h*0.35)+' '+(h*0.3)+' 0 '+(h*0.6)+'" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="0.2"/>';
+      }
+    });
+    return '<svg class="rolls" viewBox="0 0 '+c.w+' '+c.h+'" preserveAspectRatio="none">'+g+'</svg>';
+  }
+  function scaleFor(b){ var d=BAG_DIMS[b]; return Math.min(11, 620/d.l, 260/d.w); }
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(ch){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]; }); }
+  function sideOf(c){ return c.side||'base'; }
+  function fits(b, selfId, x, y, w, h, side){
+    var d=BAG_DIMS[b];
+    if(x<0 || y<0 || x+w>d.l || y+h>d.w) return false;
+    return bagCubes(b).every(function(o){ return o.id===selfId || sideOf(o)!==(side||'base') || x+w<=o.x || o.x+o.w<=x || y+h<=o.y || o.y+o.h<=y; });
+  }
+  function flash(msg){
+    var m=document.getElementById('studio-msg'); if(!m) return;
+    m.textContent=msg; m.classList.add('show');
+    clearTimeout(flashTimer); flashTimer=setTimeout(function(){ m.classList.remove('show'); }, 2400);
+  }
+  function setHover(el){
+    if(hoverCube===el) return;
+    if(hoverCube) hoverCube.classList.remove('drop-hover');
+    hoverCube=el; if(el) el.classList.add('drop-hover');
+  }
+  function openStudio(b){
+    studioBag=b; renderStudio(true);
+    var h=document.getElementById('studio'); if(h) h.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+  function removeCube(b, id){
+    Object.keys(state.items).forEach(function(k){ var v=state.items[k]; if(v && v.cube===id) state.items[k]={ bag:b }; });
+    state.cubes[b]=bagCubes(b).filter(function(c){ return c.id!==id; });
+    if(selCube===id) selCube=null;
+    refresh();
+  }
+
+  function cubeHtml(c, s){
+    var t=CUBE_TYPES[c.type], L=cubeLayout(c), st=fillStatus(L), empty=!L.count;
+    var dark=t.kind==='tech' || t.kind==='hard';
+    var bg=t.kind==='tech' ? '#5f5e5a' : (t.kind==='hard' ? '#262624' : 'rgba(255,255,255,.55)'), fg=dark ? '#e8e8e6' : '#1a1a18';
+    return '<div class="cube kind-'+t.kind+(empty?' empty':'')+(st.cls?' '+st.cls:'')+(selCube===c.id?' sel':'')+'" data-cube="'+c.id+'" style="left:'+(c.x*s)+'px;top:'+(c.y*s)+'px;width:'+(c.w*s)+'px;height:'+(c.h*s)+'px;background:'+bg+';color:'+fg+';border-color:#1a1a18;">'
+      +(empty?'':rollsSvg(c, L))
+      +'<div class="cube-bar" data-cube="'+c.id+'"><i class="ti ti-grip-vertical"></i><span class="lbl">'+t.label+' <span class="dim">'+c.w+'×'+c.h+'</span></span><button class="cube-rot" data-cube="'+c.id+'" aria-label="Rotate cube" title="Rotate"><i class="ti ti-rotate-clockwise"></i></button><button class="cube-x" data-cube="'+c.id+'" aria-label="Remove cube">&times;</button></div>'
+      +(empty?'<div class="empty-msg">Drag items here</div>':'')
+      +(st.text?'<div class="status">'+st.text+'</div>':'')
+      +'</div>';
+  }
+
+  function editorHtml(b){
+    var c=selCube ? findCube(b, selCube) : null;
+    if(!c) return '<div class="cube-editor"><div class="ce-empty">Click a cube to adjust how many of each thing are inside.</div></div>';
+    var L=cubeLayout(c), st=fillStatus(L), pct=Math.round(L.ratio*100);
+    var rows=Object.keys(state.items).filter(function(id){ var v=state.items[id]; return v && v.cube===c.id; }).map(function(id){
+      var m=META[id], n=state.items[id].n||m.q||1;
+      return '<div class="ce-row"><span class="sw" style="background:'+colorFor(m)+'"></span>'+iconHtml(m.name, m.icon)+esc(m.name)
+        +(m.q?'<span class="rec">recommended '+m.q+'</span>':'<span class="rec"></span>')
+        +'<div class="stepper"><button data-step="-1" data-id="'+id+'" aria-label="One fewer">−</button><input class="cnt" type="text" inputmode="numeric" data-id="'+id+'" value="'+n+'" /><button data-step="1" data-id="'+id+'" aria-label="One more">+</button></div>'
+        +'<button class="ce-out" data-id="'+id+'" title="Take it out" aria-label="Take it out">&times;</button></div>';
+    }).join('');
+    return '<div class="cube-editor"><div class="ce-head"><b>'+CUBE_TYPES[c.type].label+'</b>'+(BAG_DIMS[b].style==='suitcase'?'<span class="studio-dim">'+(sideOf(c)==='lid'?'lid side':'base side')+'</span>':'')+'<span class="pct">'+pct+'% full</span></div>'
+      +'<div class="ce-meter '+st.cls+'"><i style="width:'+Math.min(100,pct)+'%"></i></div>'
+      +(st.text?'<div class="ce-status '+st.cls+'">'+st.text+'</div>':'')
+      +(rows||'<div class="ce-empty">Empty. Drag items from the list below onto this cube.</div>')+'</div>';
+  }
+
+  // Best spot for a w×h cube near (x,y): snaps to walls and neighbouring edges, tries
+  // the preferred orientation first, then auto-rotates, then searches a few cm around.
+  function placeNear(b, selfId, x, y, w, h, allowRotate, side){
+    var d=BAG_DIMS[b], others=bagCubes(b).filter(function(o){ return o.id!==selfId && sideOf(o)===(side||'base'); });
+    function magnet(v, size, max, axis){
+      var best=Math.round(v), bd=2.01, targets=[0, max-size];
+      others.forEach(function(o){ var a=axis==='x'?o.x:o.y, s=axis==='x'?o.w:o.h; targets.push(a+s, a-size); });
+      targets.forEach(function(t){ if(Math.abs(t-v)<bd){ bd=Math.abs(t-v); best=t; } });
+      return best;
+    }
+    var cx=x+w/2, cy=y+h/2, orients=[[w,h,false]];
+    if(allowRotate && w!==h) orients.push([h,w,true]);
+    function tryAt(o, radius){
+      if(o[0]>d.l || o[1]>d.w) return null;
+      var bx=clamp(magnet(cx-o[0]/2, o[0], d.l, 'x'), 0, d.l-o[0]);
+      var by=clamp(magnet(cy-o[1]/2, o[1], d.w, 'y'), 0, d.w-o[1]);
+      for(var r=0; r<=radius; r++){
+        for(var dx=-r; dx<=r; dx++) for(var dy=-r; dy<=r; dy++){
+          if(Math.max(Math.abs(dx),Math.abs(dy))!==r) continue;
+          var px=bx+dx, py=by+dy;
+          if(fits(b, selfId, px, py, o[0], o[1], side)) return { x:px, y:py, w:o[0], h:o[1], rotated:o[2], ok:true };
+        }
+      }
+      return null;
+    }
+    var hit=null;
+    [0,3].forEach(function(rad){ orients.forEach(function(o){ if(!hit) hit=tryAt(o, rad); }); });
+    if(hit) return hit;
+    var fw=Math.min(w,d.l), fh=Math.min(h,d.w);
+    return { x:clamp(Math.round(cx-fw/2),0,d.l-fw), y:clamp(Math.round(cy-fh/2),0,d.w-fh), w:fw, h:fh, rotated:false, ok:false };
+  }
+
+  function bagShellHtml(b, s){
+    var d=BAG_DIMS[b], rim=Math.round(1.6*s), W=d.l*s+rim*2, H=d.w*s+rim*2, pack=d.style==='backpack';
+    // Keep cubes saved under older bag sizes inside the walls
+    bagCubes(b).forEach(function(c){ var ct=CUBE_TYPES[c.type]; if(ct && Math.max(c.w,c.h)!==Math.max(ct.w,ct.h)){ var wide=c.w>=c.h; c.w=wide?ct.w:ct.h; c.h=wide?ct.h:ct.w; } c.x=clamp(c.x, 0, Math.max(0, d.l-c.w)); c.y=clamp(c.y, 0, Math.max(0, d.w-c.h)); });
+    var zr=pack?40:14, zipPath='<rect x="5" y="5" width="'+(W-10)+'" height="'+(H-10)+'" rx="'+zr+'" pathLength="100" />';
+    var out=pack
+      ? '<div class="lid-face lid-out" style="background:'+d.color+'"><div class="pocket"></div><div class="patch"></div><span>'+BAGS[b].label+'</span></div>'
+      : '<div class="lid-face lid-out ribs" style="background-color:'+d.color+'"><span>'+BAGS[b].label+'</span></div>';
+    var inn='<div class="lid-face lid-in" style="background:'+d.lining+';border:'+rim+'px solid '+d.color+'"><div class="mesh"></div>'
+      +(pack?'<div class="slot" style="left:12%"></div><div class="slot" style="right:12%"></div>':'')+'</div>';
+    var extras=pack
+      ? '<div class="strap" style="left:-9px"></div><div class="strap" style="right:-9px"></div><div class="handle" style="left:50%;top:-12px;width:46px;height:14px;margin-left:-23px;border-radius:10px 10px 4px 4px"></div>'
+      : '<div class="handle" style="left:-11px;top:50%;width:12px;height:56px;margin-top:-28px"></div><div class="handle" style="right:-11px;top:50%;width:12px;height:40px;margin-top:-20px"></div>'
+        +'<div class="wheel" style="right:-6px;bottom:-6px"></div><div class="wheel" style="left:-6px;bottom:-6px"></div>';
+    // Room for the lid once it lies open: above the bag for a suitcase, below it for the backpack
+    var gap=pack?'margin-bottom:'+(H+8)+'px':'margin-top:'+(H+8)+'px';
+    (HANGERS[b]||[]).forEach(function(h){ gap+=';margin-'+h.side+':166px'; });
+    function interior(side){
+      return '<div class="interior" data-side="'+side+'" style="width:'+(d.l*s)+'px;height:'+(d.w*s)+'px;background-color:'+d.lining+';background-size:'+(5*s)+'px '+(5*s)+'px">'
+        +(pack?'':'<span class="side-tag">'+(side==='lid'?'Lid side':'Base side')+'</span>')
+        +bagCubes(b).filter(function(c){ return sideOf(c)===side; }).map(function(c){ return cubeHtml(c, s); }).join('')
+        +'<div class="ghost"></div></div>';
+    }
+    // Once the 3D lid has landed open, a flat packable copy takes its place (suitcases pack on both sides)
+    var lidFlat=pack ? '' : '<div class="lidflat" style="top:'+(-H)+'px;width:'+W+'px;height:'+H+'px;padding:'+rim+'px;background:'+d.color+'">'+interior('lid')+'</div>';
+    return '<div class="shell '+d.style+'" id="shell" style="width:'+W+'px;height:'+H+'px;padding:'+rim+'px;box-sizing:border-box;background:'+d.color+';'+gap+'">'
+      +'<div class="rimshade"></div>'+extras
+      +'<div class="wall" style="height:'+Math.round(d.d*s*0.55)+'px;background-color:'+d.color+'"></div>'
+      +interior('base')+lidFlat+hangerHtml(b, W)
+      +'<div class="lid">'+out+inn+'<svg class="zip" viewBox="0 0 '+W+' '+H+'"><g class="teeth">'+zipPath+'</g><g class="shut">'+zipPath+'</g></svg></div>'
+      +'</div>';
+  }
+
+  function hangerHtml(b, W){
+    return (HANGERS[b]||[]).map(function(h){
+      var items=Object.keys(state.items).filter(function(k){ var v=state.items[k]; return v && v.bag===b && v.spot===h.id; });
+      var pos=h.side==='left' ? 'right:'+(W+34)+'px' : 'left:'+(W+34)+'px';
+      return '<div class="hanger look-'+h.look+'" data-spot="'+h.id+'" style="'+pos+'">'
+        +'<div class="hl">'+h.label+'</div>'
+        +(items.length ? items.map(function(k){ var m=META[k]; return '<div class="hi">'+iconHtml(m.name, m.icon)+esc(m.name)+'<button class="hx" data-id="'+k+'" aria-label="Take it out">&times;</button></div>'; }).join('') : '<div class="he">'+h.hint+'</div>')
+        +'<span class="hb">trtl</span></div>';
+    }).join('');
+  }
+
+  function renderStudio(animate){
+    var host=document.getElementById('studio'); if(!host) return;
+    if(!studioBag || state.bags.indexOf(studioBag)<0){ studioBag=null; host.innerHTML=''; return; }
+    var b=studioBag, d=BAG_DIMS[b], s=scaleFor(b);
+    var loose=Object.keys(state.items).filter(function(k){ var v=state.items[k]; return v && v.bag===b && !v.cube && !v.spot; }).length;
+    var pal=Object.keys(CUBE_TYPES).map(function(k){
+      var t=CUBE_TYPES[k];
+      return '<div class="pal-tile" data-type="'+k+'"><span class="mini kind-'+t.kind+'" style="width:'+(t.w*1.6)+'px;height:'+(t.h*1.6)+'px"></span><span>'+t.label+'</span><span class="pal-dim">'+t.w+'×'+t.h+' cm</span></div>';
+    }).join('');
+    host.innerHTML='<div class="studio">'
+      +'<div class="studio-head"><b>'+BAGS[b].label+'</b><span class="studio-dim">inside about '+d.l+' × '+d.w+' cm, '+d.note+'</span><span class="studio-msg" id="studio-msg"></span><button class="linkbtn" id="studio-close"><i class="ti ti-x"></i> Close</button></div>'
+      +'<div class="pal">'+pal+'</div>'
+      +'<div class="stage"><div class="scene'+(animate?'':' open settled')+'" id="scene">'+bagShellHtml(b, s)+'</div></div>'
+      +'<div id="cube-editor">'+editorHtml(b)+'</div>'
+      +'<div class="studio-hint">Drag a cube in: green means it fits, red means it won’t · press <b>R</b> or scroll while dragging to rotate (it auto-rotates when that’s the only way it fits) · <i class="ti ti-rotate-clockwise"></i> or double-click a placed cube to turn it · drop items onto a cube, then click it to set how many'+(loose?' · <b>'+loose+'</b> loose in the bag':'')+'</div>'
+      +'</div>';
+    if(animate){
+      var sc=document.getElementById('scene'); sc.getBoundingClientRect();
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ sc.classList.add('open'); }); });
+      setTimeout(function(){ sc.classList.add('settled'); }, 1800);
+    }
+    if(lastPlaced){ var lp=host.querySelector('.cube[data-cube="'+lastPlaced+'"]'); if(lp) lp.classList.add('landed'); lastPlaced=null; }
+  }
+
+  function rotateCube(b, id){
+    var c=findCube(b, id); if(!c) return;
+    var p=placeNear(b, c.id, c.x+(c.w-c.h)/2, c.y+(c.h-c.w)/2, c.h, c.w, false, sideOf(c));
+    if(!p.ok){ flash('No room to turn that one here.'); return; }
+    c.x=p.x; c.y=p.y; c.w=p.w; c.h=p.h; lastPlaced=c.id; refresh();
+  }
+
+  // Cubes move with pointer events (not native drag) so the footprint can follow the
+  // cursor live and the R key / scroll wheel can rotate mid-drag.
+  var cdrag=null;
+  function cubeDragStart(e, kind, ref){
+    var b=studioBag, w, h, off;
+    if(kind==='new'){ var t=CUBE_TYPES[ref]; w=t.w; h=t.h; off=null; }
+    else {
+      var c=findCube(b, ref); if(!c) return;
+      var el=document.querySelector('.cube[data-cube="'+ref+'"]'), r=el.getBoundingClientRect(), sc=r.width/c.w;
+      w=c.w; h=c.h; off={ x:(e.clientX-r.left)/sc, y:(e.clientY-r.top)/sc };
+    }
+    cdrag={ kind:kind, ref:ref, w:w, h:h, off:off, sx:e.clientX, sy:e.clientY, lastX:e.clientX, lastY:e.clientY, live:false, place:null, flyer:null };
+    window.addEventListener('pointermove', cubeDragMove);
+    window.addEventListener('pointerup', cubeDragEnd);
+    window.addEventListener('pointercancel', cubeDragCancel);
+    window.addEventListener('keydown', cubeDragKey);
+    window.addEventListener('wheel', cubeDragWheel, { passive:false });
+    e.preventDefault();
+  }
+  function cubeDragRotate(){
+    if(!cdrag) return;
+    var t=cdrag.w; cdrag.w=cdrag.h; cdrag.h=t; cdrag.off=null;
+    cubeDragUpdate(cdrag.lastX, cdrag.lastY);
+  }
+  function cubeDragKey(e){ if(e.key==='r' || e.key==='R'){ e.preventDefault(); cubeDragRotate(); } else if(e.key==='Escape') cubeDragCancel(); }
+  function cubeDragWheel(e){ if(!cdrag || !cdrag.live) return; e.preventDefault(); if(Math.abs(e.deltaY)>4 || Math.abs(e.deltaX)>4) cubeDragRotate(); }
+  function cubeDragMove(e){
+    if(!cdrag) return;
+    cdrag.lastX=e.clientX; cdrag.lastY=e.clientY;
+    if(!cdrag.live){
+      if(Math.abs(e.clientX-cdrag.sx)+Math.abs(e.clientY-cdrag.sy)<5) return;
+      cdrag.live=true; hidePeek(); document.body.classList.add('cube-dragging');
+      if(cdrag.kind==='move'){ var el=document.querySelector('.cube[data-cube="'+cdrag.ref+'"]'); if(el) el.classList.add('lifting'); }
+      var f=document.createElement('div'); f.className='flyer'; document.body.appendChild(f); cdrag.flyer=f;
+    }
+    cubeDragUpdate(e.clientX, e.clientY);
+  }
+  function cubeDragUpdate(cx, cy){
+    var inners=[].slice.call(document.querySelectorAll('#studio .interior'));
+    if(!cdrag || !cdrag.live || !inners.length) return;
+    var b=studioBag, d=BAG_DIMS[b], sc=inners[0].getBoundingClientRect().width/d.l, pad=3*sc, inner=null, r=null;
+    inners.forEach(function(el){
+      var rr=el.getBoundingClientRect();
+      if(!inner && rr.width && cx>rr.left-pad && cx<rr.right+pad && cy>rr.top-pad && cy<rr.bottom+pad){ inner=el; r=rr; }
+      else el.querySelector('.ghost').className='ghost';
+    });
+    var label=(cdrag.kind==='new' ? CUBE_TYPES[cdrag.ref].label : CUBE_TYPES[findCube(b, cdrag.ref).type].label);
+    var f=cdrag.flyer, offX=cdrag.off ? cdrag.off.x : cdrag.w/2, offY=cdrag.off ? cdrag.off.y : cdrag.h/2;
+    f.style.width=(cdrag.w*sc)+'px'; f.style.height=(cdrag.h*sc)+'px';
+    f.style.left=(cx-offX*sc)+'px'; f.style.top=(cy-offY*sc)+'px'; f.textContent=label;
+    if(!inner){ cdrag.place=null; f.classList.remove('hidden'); return; }
+    f.classList.add('hidden');
+    var ghost=inner.querySelector('.ghost'), side=inner.dataset.side;
+    var p=placeNear(b, cdrag.kind==='move'?cdrag.ref:null, (cx-r.left)/sc-offX, (cy-r.top)/sc-offY, cdrag.w, cdrag.h, true, side);
+    p.side=side; cdrag.place=p;
+    ghost.className='ghost '+(p.ok?'ok':'bad');
+    ghost.style.left=(p.x*sc)+'px'; ghost.style.top=(p.y*sc)+'px'; ghost.style.width=(p.w*sc)+'px'; ghost.style.height=(p.h*sc)+'px';
+    ghost.textContent=p.ok ? (p.rotated ? 'Fits, turned ↻' : 'Fits') : 'Won’t fit';
+  }
+  function cubeDragStop(){
+    window.removeEventListener('pointermove', cubeDragMove);
+    window.removeEventListener('pointerup', cubeDragEnd);
+    window.removeEventListener('pointercancel', cubeDragCancel);
+    window.removeEventListener('keydown', cubeDragKey);
+    window.removeEventListener('wheel', cubeDragWheel);
+    document.body.classList.remove('cube-dragging');
+    if(cdrag && cdrag.flyer) cdrag.flyer.remove();
+    document.querySelectorAll('#studio .ghost').forEach(function(g){ g.className='ghost'; });
+    document.querySelectorAll('.cube.lifting').forEach(function(el){ el.classList.remove('lifting'); });
+    var c=cdrag; cdrag=null; return c;
+  }
+  function cubeDragCancel(){ cubeDragStop(); }
+  function cubeDragEnd(){
+    var c=cubeDragStop(); if(!c || !c.live) return;
+    var p=c.place, b=studioBag;
+    if(!p) return;
+    if(!p.ok){ flash(c.kind==='new' ? 'That one won’t fit there. Try a bigger gap.' : 'It bumps into another cube.'); return; }
+    if(c.kind==='new'){
+      var t=CUBE_TYPES[c.ref], id='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+      bagCubes(b).push({ id:id, type:c.ref, side:p.side, x:p.x, y:p.y, w:p.w, h:p.h, cat:t.cat, cap:null });
+      lastPlaced=id; selCube=id;
+    } else {
+      var cube=findCube(b, c.ref); if(!cube) return;
+      cube.side=p.side; cube.x=p.x; cube.y=p.y; cube.w=p.w; cube.h=p.h; lastPlaced=cube.id;
+    }
+    if(p.rotated) flash('Turned it sideways so it fits.');
+    refresh();
+  }
+
+  function wireStudio(host){
+    host.addEventListener('pointerdown', function(e){
+      if(e.button!==0 || e.target.closest('button,select,input')) return;
+      var tile=e.target.closest('.pal-tile'); if(tile){ cubeDragStart(e, 'new', tile.dataset.type); return; }
+      var bar=e.target.closest('.cube-bar'); if(bar) cubeDragStart(e, 'move', bar.dataset.cube);
+    });
+    // Native drag is only used for items coming from the drawers
+    host.addEventListener('dragend', function(){ setHover(null); });
+    host.addEventListener('dragover', function(e){
+      var hg=e.target.closest('.hanger');
+      host.querySelectorAll('.hanger.drop-ready').forEach(function(x){ if(x!==hg) x.classList.remove('drop-ready'); });
+      if(dragKind==='item' && hg){ e.preventDefault(); hg.classList.add('drop-ready'); return; }
+      if(dragKind!=='item' || !e.target.closest('.interior')) return;
+      e.preventDefault();
+      setHover(e.target.closest('.cube'));
+    });
+    host.addEventListener('drop', function(e){
+      var hg=e.target.closest('.hanger');
+      if(hg && dragKind==='item' && draggingId){ e.preventDefault(); state.items[draggingId]={ bag:studioBag, spot:hg.dataset.spot }; clearDrag(); refresh(); return; }
+      var inner=e.target.closest('.interior'); if(!inner || dragKind!=='item' || !draggingId) return;
+      e.preventDefault(); setHover(null);
+      var ce=e.target.closest('.cube');
+      state.items[draggingId] = ce ? { bag:studioBag, cube:ce.dataset.cube, n:META[draggingId].q||1 } : { bag:studioBag };
+      if(ce) selCube=ce.dataset.cube;
+      clearDrag(); refresh();
+    });
+    host.addEventListener('dblclick', function(e){
+      var el=e.target.closest('.cube'); if(!el || e.target.closest('select,input,button')) return;
+      rotateCube(studioBag, el.dataset.cube);
+    });
+    host.addEventListener('click', function(e){
+      var x=e.target.closest('.cube-x'); if(x){ removeCube(studioBag, x.dataset.cube); return; }
+      var rt=e.target.closest('.cube-rot'); if(rt){ rotateCube(studioBag, rt.dataset.cube); return; }
+      var stp=e.target.closest('[data-step]'); if(stp){ setCount(stp.dataset.id, (state.items[stp.dataset.id].n||1)+parseInt(stp.dataset.step,10)); return; }
+      var hx=e.target.closest('.hx'); if(hx){ state.items[hx.dataset.id]='available'; refresh(); return; }
+      var out=e.target.closest('.ce-out'); if(out){ state.items[out.dataset.id]='available'; refresh(); return; }
+      var cb=e.target.closest('.cube'); if(cb){ if(selCube!==cb.dataset.cube){ selCube=cb.dataset.cube; renderStudio(false); } return; }
+      if(e.target.closest('#studio-close')){ studioBag=null; renderStudio(false); }
+    });
+    host.addEventListener('input', function(e){
+      var t=e.target; if(!t.classList.contains('cnt')) return;
+      var v=parseInt(t.value, 10); if(v>0) setCount(t.dataset.id, v, true);
+    });
+    host.addEventListener('change', function(e){
+      var t=e.target; if(t.classList.contains('cnt') && !(parseInt(t.value,10)>0)) refresh();
+    });
+  }
+
+  // Live count changes redraw the rolls; keep the caret in the box while typing
+  function setCount(id, n, typing){
+    var v=state.items[id]; if(!v || !v.cube) return;
+    v.n=Math.max(1, Math.min(99, n));
+    refresh();
+    if(typing){ var inp=document.querySelector('#cube-editor .cnt[data-id="'+id+'"]'); if(inp){ inp.focus(); var l=inp.value.length; inp.setSelectionRange(l, l); } }
+  }
+
+  function refresh(){ renderDrawers(); renderRec(); renderBin(); updateBadges(); renderStudio(false); saveState(); }
+
+  function renderRec(){
+    var host=scPack.querySelector('#rec-list'); if(!host) return;
+    var html='';
+    DATA.forEach(function(d){
+      if(d.name!=='Clothing' && d.name!=='Extras') return;
+      d.subs.forEach(function(sub){ sub.items.forEach(function(it){
+        if(!it.q || state.items[it.id]==='binned') return;
+        var v=state.items[it.id], packed=v && v.bag ? (v.cube ? (v.n||it.q) : it.q) : 0;
+        html+='<div class="rec-item'+(packed>=it.q?' met':'')+'">'+iconHtml(it.n, it.i)+it.n+'<span class="rq">'+(packed?packed+' / ':'')+it.q+(packed>=it.q?' <i class="ti ti-check"></i>':'')+'</span></div>';
+      }); });
+    });
+    host.innerHTML=html;
+  }
 
   function renderDrawers(){
     var host = scPack.querySelector('#drawers');
@@ -583,9 +1263,8 @@
       d.subs.forEach(function(sub){
         var chips = '';
         sub.items.forEach(function(it){
-          if(!inSeason(it)) return;
           if(state.items[it.id] !== 'available') return;
-          chips += '<div class="chip" draggable="true" data-id="'+it.id+'"><i class="ti '+it.i+'" aria-hidden="true"></i><span class="nm">'+it.n+'</span>'+(it.q>1?'<span class="qty">x'+it.q+'</span>':'')+'</div>';
+          chips += '<div class="chip" draggable="true" data-id="'+it.id+'">'+iconHtml(it.n, it.i)+'<span class="nm">'+it.n+'</span></div>';
         });
         if(chips){ subsHtml += '<div class="subhead">'+sub.name+'</div><div class="chip-grid">'+chips+'</div>'; }
       });
@@ -604,7 +1283,7 @@
     scPack.querySelector('#bin-label').textContent = 'Not this trip ('+ids.length+')';
     var list = scPack.querySelector('#bin-list');
     if(!ids.length){ list.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">Drag anything here to set it aside. Click to bring it back.</span>'; return; }
-    list.innerHTML = ids.map(function(id){ var m=META[id]; return '<span class="pit" data-id="'+id+'"><i class="ti '+m.icon+'"></i>'+m.name+' <i class="ti ti-arrow-back-up"></i></span>'; }).join('');
+    list.innerHTML = ids.map(function(id){ var m=META[id]; return '<span class="pit" data-id="'+id+'">'+iconHtml(m.name, m.icon)+m.name+' <i class="ti ti-arrow-back-up"></i></span>'; }).join('');
   }
 
   function updateBadges(){
@@ -617,7 +1296,13 @@
 
   function groupFor(bagId){
     var groups = {};
-    Object.keys(state.items).forEach(function(id){ var v=state.items[id]; if(v && v.bag===bagId){ var m=META[id]; (groups[m.sub]=groups[m.sub]||[]).push(m); } });
+    Object.keys(state.items).forEach(function(id){
+      var v=state.items[id]; if(!v || v.bag!==bagId) return;
+      var m=META[id], key=m.sub;
+      if(v.cube){ var c=findCube(bagId, v.cube); if(c) key=CUBE_TYPES[c.type].label+(sideOf(c)==='lid'?' (lid side)':''); }
+      if(v.spot){ var hg=hangerFor(bagId, v.spot); if(hg) key=hg.label+' (outside)'; }
+      (groups[key]=groups[key]||[]).push(v.cube ? Object.assign({}, m, { n:v.n||m.q||1 }) : m);
+    });
     return groups;
   }
 
@@ -629,10 +1314,10 @@
     else {
       keys.forEach(function(k){
         html += '<div class="grp"><div class="subhead" style="margin:6px 0 2px;">'+k+'</div>';
-        html += groups[k].map(function(m){ return '<span class="pit"><i class="ti '+m.icon+'"></i>'+m.name+'</span>'; }).join('');
+        html += groups[k].map(function(m){ return '<span class="pit">'+iconHtml(m.name, m.icon)+m.name+(m.n>1?' ×'+m.n:'')+'</span>'; }).join('');
         html += '</div>';
       });
-      html += '<div class="hint">Click the bag for the full contents view.</div>';
+      html += '<div class="hint">'+(CUBE_BAGS.indexOf(bagId)>-1?'Click the bag to open it up.':'Click the bag for the full contents view.')+'</div>';
     }
     peek.innerHTML = html;
     peek.style.display = 'block';
@@ -651,7 +1336,7 @@
     else {
       keys.forEach(function(k){
         html += '<div class="m-sub">'+k+'</div>';
-        groups[k].forEach(function(m){ html += '<div class="m-item"><i class="ti '+m.icon+' mi"></i>'+m.name+'<button class="m-un" data-id="'+m.id+'">Remove</button></div>'; });
+        groups[k].forEach(function(m){ html += '<div class="m-item">'+iconHtml(m.name, m.icon, 'mi')+m.name+(m.n>1?' ×'+m.n:'')+'<button class="m-un" data-id="'+m.id+'">Remove</button></div>'; });
       });
     }
     box.innerHTML = html;
@@ -666,7 +1351,8 @@
       buildPack();
       show(scPack);
     } else {
-      show(scSeason);
+      buildBags();
+      show(scBags);
     }
   });
 })();
