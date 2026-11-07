@@ -271,6 +271,22 @@
   .hanger .hi { display:flex; align-items:center; gap:5px; padding:2px 0; font-size:11px; }
   .hanger .hi i { font-size:14px; } .hanger .hi .hx { margin-left:auto; border:none; background:none; color:#fff; cursor:pointer; font-size:14px; padding:0 2px; opacity:.8; }
   .hanger .he { opacity:.75; font-style:italic; }
+  .hanger .hopen { margin-top:8px; border:0.5px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; border-radius:8px; padding:4px 8px; font-size:11px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; }
+  .hanger.look-wallet { cursor:pointer; }
+  .modal-box.wallet-box { max-width:600px; }
+  .wallet-wrap { perspective:1200px; margin:6px 0 10px; }
+  .wallet-svg { width:100%; height:auto; display:block; }
+  .wallet-wrap.opening .w-left { transform-box:view-box; transform-origin:260px 165px; animation:wOpen .7s cubic-bezier(.3,1.25,.5,1) both; }
+  @keyframes wOpen { 0%{ transform:scaleX(-1); filter:brightness(.6); } 100%{ transform:none; } }
+  .wallet-svg .w-in { animation:wIn .45s cubic-bezier(.3,1.5,.5,1) both; transform-box:fill-box; transform-origin:center; }
+  @keyframes wIn { 0%{ transform:translateY(-30px) scale(.9); opacity:0; } 100%{ transform:none; opacity:1; } }
+  .w-list { display:grid; gap:6px; }
+  .w-row { display:flex; align-items:center; gap:10px; border:0.5px solid var(--border); background:var(--surface-1); border-radius:10px; padding:8px 12px; font-size:13px; cursor:pointer; color:var(--text-primary); text-align:left; }
+  .w-row i { font-size:18px; color:var(--text-secondary); }
+  .w-row .w-state { margin-left:auto; font-size:12px; color:var(--text-muted); display:inline-flex; align-items:center; gap:4px; }
+  .w-row.on { border-color:#1D9E75; background:rgba(29,158,117,.07); }
+  .w-row.on .w-state { color:#0F6E56; }
+  .w-row:hover { border-color:var(--border-accent); }
   .cube.empty { background:rgba(255,255,255,.35) !important; border:2px solid #1a1a18 !important; color:#1a1a18 !important; }
   .cube.sel { box-shadow:0 0 0 3px #534AB7; }
   .cube .rolls { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
@@ -408,7 +424,7 @@
   var HANGERS = {
     'lynxcher': [
       { id:'trtl', label:'TRTL pillow pouch', side:'right', look:'trtl', hint:'Hangs outside. Drop items here' },
-      { id:'wallet', label:'Travel wallet', side:'left', look:'wallet', hint:'Passport, cards and documents' }
+      { id:'wallet', label:'Travel wallet', side:'left', look:'wallet', hint:'Drop your passport and cards here' }
     ]
   };
   function hangerFor(b, spot){ var r=null; (HANGERS[b]||[]).forEach(function(h){ if(h.id===spot) r=h; }); return r; }
@@ -434,23 +450,42 @@
     'Misc':      ['#ffffff','#5F5E5A'],
     'Tech':      ['#2c2c2a','#e8e8e6']
   };
-  // How each item packs: a = cm along the cube's long side, b = cm across it, per = units per count (a pair of shoes = 2)
-  var ROLL_SPECS = {
-    'T-shirts':{a:5,b:24}, 'Button Shirts':{a:6,b:24}, 'Long Sleeve':{a:6,b:24}, 'Hoodie':{a:9,b:26}, 'Jacket':{a:10,b:26}, 'Thermals':{a:5,b:24}, 'Tank Tops':{a:4,b:22},
-    'Dress Shorts':{a:5,b:22}, 'Casual Shorts':{a:5,b:22}, 'Pants':{a:7,b:26}, 'Jeans':{a:8,b:26},
-    'Underwear':{a:4,b:9}, 'Socks':{a:3,b:6},
-    'Board Shorts':{a:5,b:22}, 'Beach Towel':{a:9,b:30}, 'Hat':{a:14,b:16,shape:'block'},
-    'Power Bank':{a:3,b:12,shape:'block'}, 'Laptop':{a:3,b:30,shape:'block'}, 'Smart Mouse':{a:4,b:7,shape:'block'}
+  // How clothes pack, from Jordan's own cubes. cost = share of a SMALL cube (27×19) one item takes:
+  // a small holds 5 T-shirts, 5 shorts or 2 pajama sets; a medium (1.8× a small) holds 4 pants or 4 button shirts.
+  // style: file = file-folded and lined up, stack = folded flat and stacked, grid = little rolls, shoe, block
+  var PACK = {
+    'T-shirts':      { cost:.2,  style:'file',  look:'tee',    pal:['#2b2b2e','#22304d','#f2efe8','#e3ddd0','#77787a'] },
+    'Tank Tops':     { cost:.15, style:'file',  look:'tee',    pal:['#f2efe8','#2b2b2e','#c9c3b5'] },
+    'Thermals':      { cost:.3,  style:'file',  look:'tee',    pal:['#e6e1d6','#2b2b2e'] },
+    'Button Shirts': { cost:.45, style:'stack', look:'shirt',  pal:['#8b7d6b','#f4f1ea','#a9c1d9','#6b6f5a'] },
+    'Hoodie':        { cost:.6,  style:'stack', look:'hoodie', pal:['#5f5e5a','#2b2b2e'] },
+    'Jacket':        { cost:.7,  style:'stack', look:'jacket', pal:['#3d3f36','#1f1f1d'] },
+    'Pants':         { cost:.45, style:'stack', look:'pants',  pal:['#1f1f1d','#8b7a5e','#3b3b3b','#5b5d4f'] },
+    'Jeans':         { cost:.45, style:'stack', look:'jeans',  pal:['#5b7fa8','#3f5e86'] },
+    'Dress Shorts':  { cost:.2,  style:'file',  look:'shorts', pal:['#d8d0c0','#22304d','#a39a86'] },
+    'Casual Shorts': { cost:.2,  style:'file',  look:'shorts', pal:['#8a8f7a','#f2efe8','#2b2b2e','#c9b99a'] },
+    'Board Shorts':  { cost:.2,  style:'file',  look:'shorts', pal:['#378ADD','#1D9E75'] },
+    'Pajamas':       { cost:.5,  style:'file',  look:'pjs',    pal:['#f2efe8'] },
+    'Underwear':     { cost:.08, style:'grid',  look:'roll', rows:2, pal:['#2b2b2e','#77787a','#22304d'] },
+    'Socks':         { cost:.05, style:'grid',  look:'roll', rows:3, pal:['#2b2b2e','#f2efe8','#8a8a86'] },
+    'Beach Towel':   { cost:.6,  style:'file',  look:'towel',  pal:['#EF9F27'] },
+    'Hat':           { cost:.4,  style:'block' },
+    'Power Bank':    { cost:.07, style:'block' }, 'Laptop':{ cost:.9, style:'block' }, 'Smart Mouse':{ cost:.07, style:'block' }
   };
-  var SHOE_SPEC = {a:29,b:8.5,per:2,shape:'shoe'}, BLOCK_SPEC = {a:6,b:10,shape:'block'}, CABLE_SPEC = {a:4,b:6,shape:'block'}, WASH_SPEC = {a:4,b:8,shape:'block'};
-  var ITEM_COLORS = {
-    'T-shirts':'#7F77DD', 'Button Shirts':'#378ADD', 'Long Sleeve':'#1D9E75', 'Hoodie':'#888780', 'Thermals':'#D85A30', 'Tank Tops':'#D4537E',
-    'Dress Shorts':'#BA7517', 'Casual Shorts':'#EF9F27', 'Pants':'#854F0B', 'Jeans':'#185FA5', 'Underwear':'#993556', 'Socks':'#0F6E56',
-    'Board Shorts':'#378ADD', 'Beach Towel':'#EF9F27'
-  };
+  var SMALL_AREA = 27*19;
+  function packFor(m){
+    if(PACK[m.name]) return PACK[m.name];
+    if(m.sub==='Shoes' || /shoe/i.test(m.name)) return { cost:1.1, style:'shoe', pal:['#2b2b2e','#8b6b4a','#f2efe8'] };
+    if(m.sub==='Charging & cables' || /cord|usb|brick/i.test(m.name)) return { cost:.06, style:'block' };
+    if(m.domain==='Bathroom') return { cost:.07, style:'block' };
+    return { cost:.15, style:'block' };
+  }
+  function capOf(c){ return c.w*c.h/SMALL_AREA; }
   var SPARE_COLORS = ['#5DCAA5','#AFA9EC','#F0997B','#85B7EB','#ED93B1','#97C459','#FAC775','#B4B2A9'];
   // Custom outline icons drawn to match Jordan's icon sheets (24×24 grid, 1.6px stroke = currentColor, shown at 40px in the list). Items not listed keep their Tabler icon.
   var ICON_SVG = {
+    'Pajamas':'<path d="M8.5 3 5 4.5 3.8 8l2.4 1 .8-.4V12h10V8.6l.8.4 2.4-1L19 4.5 15.5 3c-.5 1-1.8 1.6-3.5 1.6S9 4 8.5 3z"/><path d="M7 14h10l.7 7h-4.2L12 17.2 10.5 21H6.3z"/><path d="M9.5 15v4M14.5 15v4"/>',
+    'ID Card':'<rect x="3" y="6" width="18" height="12" rx="2"/><rect x="5.5" y="9" width="4.5" height="5.5" rx=".8"/><path d="M12.5 10h6M12.5 12.5h6M12.5 15h4"/>',
     'Airpod Pro':'<rect x="3.8" y="5.6" width="4.4" height="8.2" rx="2"/><path d="M8.2 6.4C9.6 4.8 11.6 3.8 13.9 3.8c3.3 0 5.6 2.5 5.6 5.8 0 1.2-.3 2.3-.8 3.3l-4.3 8a2 2 0 0 1-3.5-1.8l3.5-6.6c-2.1.2-4.2-.2-6.2-1"/><path d="M11.2 18.6l3 1.6"/><rect x="12.3" y="7.6" width="4" height="2.2" rx="1.1"/>',
     'Speaker':'<rect x="2.5" y="7.5" width="19" height="9" rx="4.5"/><path d="M6.8 7.8v8.4M17.2 7.8v8.4"/><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="12" r=".5" fill="currentColor" stroke="none"/>',
     'USB-A Cord':'<rect x="8.5" y="2" width="7" height="7" rx=".6"/><rect x="10" y="4.3" width="1.4" height="1.4" fill="currentColor" stroke="none"/><rect x="12.6" y="4.3" width="1.4" height="1.4" fill="currentColor" stroke="none"/><rect x="7.5" y="9" width="9" height="6.5" rx="1.8"/><rect x="10" y="15.5" width="4" height="3" rx=".6"/><path d="M11 18.5V22M13 18.5V22"/>',
@@ -541,6 +576,9 @@
         {n:'Underwear', i:'ti-hanger', s:'all', q:10},
         {n:'Socks', i:'ti-sock', s:'all', q:5}
       ]},
+      { name:'Sleepwear', items:[
+        {n:'Pajamas', i:'ti-moon', s:'all', q:2}
+      ]},
       { name:'Shoes', items:[
         {n:'Dress', i:'ti-shoe', s:'all', q:1},
         {n:'Casual', i:'ti-shoe', s:'all', q:1},
@@ -620,6 +658,7 @@
       { name:'Documents & IDs', items:[
         {n:'Passport', i:'ti-passport', s:'all', q:1},
         {n:'Credit Card', i:'ti-credit-card', s:'all', q:1},
+        {n:'ID Card', i:'ti-id', s:'all', q:1},
         {n:'Drivers License', i:'ti-id', s:'all', q:1},
         {n:'Document Copy', i:'ti-file', s:'all', q:1},
         {n:'Flight PDF save', i:'ti-file-download', s:'all', q:1}
@@ -1051,28 +1090,18 @@
   function bagCubes(b){ if(!state.cubes[b]) state.cubes[b]=[]; return state.cubes[b]; }
   function findCube(b, id){ var r=null; bagCubes(b).forEach(function(c){ if(c.id===id) r=c; }); return r; }
   function cubeEntries(c){ return Object.keys(state.items).filter(function(id){ var v=state.items[id]; return v && v.cube===c.id; }).map(function(id){ return { m:META[id], n:state.items[id].n||META[id].q||1 }; }); }
-  function specFor(m){ if(ROLL_SPECS[m.name]) return ROLL_SPECS[m.name]; if(m.sub==='Charging & cables' || /cord|usb|brick/i.test(m.name)) return CABLE_SPEC; if(m.domain==='Bathroom') return WASH_SPEC; if(m.sub==='Shoes' || /shoe/i.test(m.name)) return SHOE_SPEC; return BLOCK_SPEC; }
-  function colorFor(m){ if(ITEM_COLORS[m.name]) return ITEM_COLORS[m.name]; var h=0; for(var i=0;i<m.id.length;i++) h=(h*31+m.id.charCodeAt(i))>>>0; return SPARE_COLORS[h%SPARE_COLORS.length]; }
-  // Lays rolls out in columns along the cube's long side. Items of the same size share a
-  // column (e.g. two cables stacked side by side), so each colour band starts where the last left off.
+  function colorFor(m){ var p=packFor(m); if(p.pal) return p.pal[0]; var h=0; for(var i=0;i<m.id.length;i++) h=(h*31+m.id.charCodeAt(i))>>>0; return SPARE_COLORS[h%SPARE_COLORS.length]; }
+  // Fills a cube by share of its capacity; each item gets a band along the long side
   function cubeLayout(c){
-    var long=Math.max(c.w,c.h), short=Math.min(c.w,c.h), cur=0, rolls=[], over=0, entries=cubeEntries(c), col=null;
+    var cap=capOf(c), used=0, over=0, units=0, bands=[], entries=cubeEntries(c);
     entries.forEach(function(e){
-      var sp=specFor(e.m), per=sp.per||1, units=e.n*per, b=Math.min(sp.b, short), rpc=Math.max(1, Math.floor(short/b)), slot=short/rpc, overUnits=0;
-      if(!col || col.a!==sp.a || col.rpc!==rpc){ if(col) cur+=col.a; col={ a:sp.a, rpc:rpc, used:0 }; }
-      for(var i=0;i<units;i++){
-        if(col.used===rpc){ cur+=col.a; col.used=0; }
-        if(cur+sp.a>long+0.01){ overUnits++; continue; }
-        rolls.push({ x:cur, y:col.used*slot, a:sp.a, b:slot, col:colorFor(e.m), shape:sp.shape||'roll' });
-        col.used++;
-      }
-      over+=Math.ceil(overUnits/per);
+      var p=packFor(e.m), fit=0;
+      for(var i=0;i<e.n;i++){ if(used+p.cost>cap+1e-6) over++; else { used+=p.cost; fit++; } }
+      if(fit) bands.push({ m:e.m, p:p, n:fit, share:fit*p.cost/cap });
+      units+=fit;
     });
-    var used=cur+(col && col.used ? col.a : 0);
-    // Still room if a part-filled column has a free slot, or another column of the slimmest item fits
-    var minA=entries.reduce(function(a, e){ return Math.min(a, specFor(e.m).a); }, Infinity);
-    var room=(col && col.used>0 && col.used<col.rpc) || (long-used >= minA-0.01);
-    return { rolls:rolls, over:over, ratio:used/long, count:entries.length, room:room };
+    var minCost=entries.reduce(function(a, e){ return Math.min(a, packFor(e.m).cost); }, Infinity);
+    return { bands:bands, units:units, over:over, ratio:used/cap, count:entries.length, room:cap-used >= minCost-1e-6 };
   }
   function fillStatus(L){
     if(L.over) return { cls:'over', text:'This won’t zip — '+L.over+' too many' };
@@ -1080,23 +1109,93 @@
     if(L.ratio>=0.75) return { cls:'snug', text:'Getting snug in here…' };
     return { cls:'', text:'' };
   }
-  function rollsSvg(c, L, from){
-    var flip=c.w<c.h, g='';
-    L.rolls.forEach(function(r, ri){
-      var fresh=ri>=from;
-      if(fresh) g+='<g class="roll-new" style="--i:'+(ri-from)+'">';
-      var x=r.x+0.25, y=r.y+0.25, w=r.a-0.5, h=r.b-0.5;
-      if(flip){ var t=x; x=y; y=t; t=w; w=h; h=t; }
-      var rx=r.shape==='roll' ? Math.min(w,h)/2 : (r.shape==='shoe' ? Math.min(w,h)/2.2 : 1);
-      g+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+rx+'" fill="'+r.col+'" stroke="rgba(0,0,0,.35)" stroke-width="0.15"/>';
-      if(r.shape==='roll'){
-        // a highlight down the length and a spiral hint at one end so it reads as a rolled garment
-        if(w<h) g+='<line x1="'+(x+w*0.32)+'" y1="'+(y+w*0.6)+'" x2="'+(x+w*0.32)+'" y2="'+(y+h-w*0.6)+'" stroke="rgba(255,255,255,.4)" stroke-width="0.35" stroke-linecap="round"/><path d="M'+(x+w*0.2)+' '+(y+w*0.75)+' q'+(w*0.3)+' '+(-w*0.35)+' '+(w*0.6)+' 0" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="0.2"/>';
-        else g+='<line x1="'+(x+h*0.6)+'" y1="'+(y+h*0.32)+'" x2="'+(x+w-h*0.6)+'" y2="'+(y+h*0.32)+'" stroke="rgba(255,255,255,.4)" stroke-width="0.35" stroke-linecap="round"/><path d="M'+(x+h*0.75)+' '+(y+h*0.2)+' q'+(-h*0.35)+' '+(h*0.3)+' 0 '+(h*0.6)+'" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="0.2"/>';
-      }
-      if(fresh) g+='</g>';
+  // ---- Folded-garment drawings (cm units; long side runs left→right) ----
+  function rgbOf(hex){ var n=parseInt(hex.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+  function shade(hex, t){ var c=rgbOf(hex), f=t<0?0:255, a=Math.abs(t); return 'rgb('+c.map(function(v){ return Math.round(v+(f-v)*a); }).join(',')+')'; }
+  function isDark(hex){ var c=rgbOf(hex); return (c[0]*299+c[1]*587+c[2]*114)/1000 < 120; }
+  var EDGE=' stroke="rgba(0,0,0,.38)" stroke-width="0.12"';
+  function ln(x1,y1,x2,y2,col,w){ return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'" stroke-width="'+(w||.15)+'" stroke-linecap="round"/>'; }
+  function dot(x,y,r,col){ return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+col+'"/>'; }
+  // A flat-folded garment seen from above; only the top one of a stack gets its details
+  function foldedGarment(look, x, y, w, h, col, top){
+    var dk=isDark(col), det=shade(col, dk ? .32 : -.32), deep=shade(col, dk ? .5 : -.5), r=Math.min(1.4,h*.08);
+    var g='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+r+'" fill="'+col+'"'+EDGE+'/>';
+    if(!top) return g;
+    if(look==='pants' || look==='jeans'){
+      // waistband with gathered elastic, a belt loop, and the welt back pocket with its button
+      var wb=Math.min(3, w*.13);
+      g+='<rect x="'+x+'" y="'+y+'" width="'+wb+'" height="'+h+'" rx="'+r+'" fill="'+shade(col, dk ? .12 : -.14)+'"/>';
+      for(var yy=y+1; yy<y+h-.6; yy+=1.1) g+=ln(x+.35, yy, x+wb-.35, yy, det, .12);
+      g+='<rect x="'+(x+wb-.4)+'" y="'+(y+h*.16)+'" width="1.6" height=".8" rx=".3" fill="'+shade(col, dk ? .2 : -.2)+'"'+EDGE+'/>';
+      var px=x+wb+w*.2;
+      g+='<rect x="'+(px-.18)+'" y="'+(y+h*.2)+'" width=".36" height="'+(h*.42)+'" rx=".18" fill="'+deep+'"/>'+dot(px+1, y+h*.41, .5, deep);
+      if(look==='jeans') g+='<path d="M'+(x+wb+.6)+' '+(y+.7)+' H'+(x+w-.6)+' M'+(x+wb+.6)+' '+(y+h-.7)+' H'+(x+w-.6)+'" stroke="#e0aa5e" stroke-width=".14" stroke-dasharray=".45 .3" fill="none"/>';
+      else g+=ln(x+w*.62, y+h*.5, x+w-.6, y+h*.5, det, .1);
+    } else if(look==='shirt'){
+      // collar points, button placket and the folded-in sleeves
+      var cy=y+h/2;
+      g+='<path d="M'+(x+.4)+' '+(cy-h*.3)+' L'+(x+w*.2)+' '+cy+' L'+(x+.4)+' '+(cy+h*.3)+' Z" fill="'+shade(col, dk ? .1 : -.1)+'" stroke="'+det+'" stroke-width=".2" stroke-linejoin="round"/>';
+      g+='<path d="M'+(x+.4)+' '+(cy-h*.3)+' L'+(x+w*.13)+' '+(cy-h*.08)+' M'+(x+.4)+' '+(cy+h*.3)+' L'+(x+w*.13)+' '+(cy+h*.08)+'" stroke="'+det+'" stroke-width=".2" fill="none"/>';
+      g+=ln(x+w*.2, cy-.45, x+w-.5, cy-.45, det, .14)+ln(x+w*.2, cy+.45, x+w-.5, cy+.45, det, .14);
+      for(var b=0;b<4;b++) g+=dot(x+w*(.32+b*.17), cy, .45, deep);
+      g+=ln(x+w*.44, y+.4, x+w*.6, y+h*.24, det, .16)+ln(x+w*.44, y+h-.4, x+w*.6, y+h*.76, det, .16);
+    } else if(look==='hoodie'){
+      g+='<path d="M'+x+' '+(y+h*.18)+' Q'+(x+w*.32)+' '+(y+h*.5)+' '+x+' '+(y+h*.82)+'" fill="'+shade(col, dk ? .12 : -.15)+'" stroke="'+det+'" stroke-width=".2"/>';
+      g+=ln(x+w*.18, y+h*.43, x+w*.42, y+h*.41, det, .16)+ln(x+w*.18, y+h*.57, x+w*.42, y+h*.59, det, .16);
+      g+='<rect x="'+(x+w*.6)+'" y="'+(y+h*.28)+'" width="'+(w*.28)+'" height="'+(h*.44)+'" rx=".8" fill="none" stroke="'+det+'" stroke-width=".2"/>';
+    } else if(look==='jacket'){
+      g+=ln(x+w*.08, y+h*.5, x+w-.4, y+h*.5, det, .25)+'<path d="M'+(x+w*.04)+' '+(y+h*.25)+' L'+(x+w*.16)+' '+(y+h*.5)+' L'+(x+w*.04)+' '+(y+h*.75)+'" fill="none" stroke="'+det+'" stroke-width=".22"/>';
+      g+='<rect x="'+(x+w*.55)+'" y="'+(y+h*.12)+'" width="'+(w*.3)+'" height=".6" rx=".3" fill="'+det+'"/><rect x="'+(x+w*.55)+'" y="'+(y+h*.8)+'" width="'+(w*.3)+'" height=".6" rx=".3" fill="'+det+'"/>';
+    }
+    return g;
+  }
+  // One file-folded piece (a tee, shorts, pajama shorts, towel...) standing in a row
+  function filedPiece(look, x, y, w, h, col){
+    var det=isDark(col) ? 'rgba(255,255,255,.22)' : 'rgba(0,0,0,.22)', rx=Math.min(w,h)*.22;
+    var g='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+rx+'" fill="'+col+'"'+EDGE+'/>';
+    if(look==='tee'){
+      g+='<path d="M'+(x+w*.18)+' '+(y+h*.1)+' Q'+(x+w*.5)+' '+(y+h*.03)+' '+(x+w*.82)+' '+(y+h*.1)+'" fill="none" stroke="'+det+'" stroke-width=".16"/>';
+      g+=ln(x+w*.8, y+h*.18, x+w*.8, y+h*.86, det, .14);
+    } else if(look==='shorts' || look==='pjshorts'){
+      var band=Math.min(h*.18, 3.2), base=look==='pjshorts' ? '#f4f6fb' : col;
+      if(look==='pjshorts'){ g='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+rx+'" fill="'+base+'"'+EDGE+'/>'; for(var k=1;k<6;k++) g+=ln(x+w*k/6, y+band+.3, x+w*k/6, y+h-.4, '#4a6fb5', .22); }
+      g+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+band+'" rx="'+rx+'" fill="'+shade(base,-.12)+'"/>';
+      for(var r=1;r<4;r++) g+=ln(x+.35, y+band*r/4, x+w-.35, y+band*r/4, det, .1);
+      if(look==='shorts') g+=ln(x+w*.5, y+band+.5, x+w*.5, y+h*.55, det, .12);
+    } else if(look==='towel'){
+      g+=ln(x+.3, y+h*.3, x+w-.3, y+h*.3, '#fff', .5)+ln(x+.3, y+h*.7, x+w-.3, y+h*.7, '#fff', .5);
+    }
+    return g;
+  }
+  function drawBand(bd, x, y, w, h){
+    var p=bd.p, n=bd.n, out=[], pal=p.pal || [colorFor(bd.m)];
+    if(p.style==='stack'){
+      // Folded flat and stacked: the top garment shows its details, the ones beneath peek out at the edges
+      var layers=Math.min(n, 5), off=Math.min(.7, w*.04), gw=w-.2-(layers-1)*off, gh=h-.2-(layers-1)*off*.8;
+      for(var i=0;i<n;i++){ var d=Math.min(n-1-i, layers-1); out.push(foldedGarment(p.look, x+.1+d*off, y+.1+d*off*.8, gw, gh, pal[(n-1-i)%pal.length], i===n-1)); }
+      return out;
+    }
+    var rows=p.style==='grid' ? (p.rows||2) : 1, count=p.look==='pjs' ? n*2 : n, cols=Math.ceil(count/rows), sw=w/cols, sh=h/rows, gap=Math.min(.25, sw*.08);
+    for(var k=0;k<count;k++){
+      var cx=x+Math.floor(k/rows)*sw+gap/2, cy=y+(k%rows)*sh+gap/2, cw=sw-gap, ch=sh-gap, col=pal[k%pal.length];
+      if(p.look==='pjs') out.push(filedPiece(k%2 ? 'pjshorts' : 'tee', cx, cy, cw, ch, '#f2efe8'));
+      else if(p.style==='file') out.push(filedPiece(p.look, cx, cy, cw, ch, col));
+      else if(p.style==='grid') out.push('<rect x="'+cx+'" y="'+cy+'" width="'+cw+'" height="'+ch+'" rx="'+Math.min(cw,ch)/2+'" fill="'+col+'"'+EDGE+'/>'+ln(cx+cw*.3, cy+ch*.2, cx+cw*.3, cy+ch*.8, 'rgba(255,255,255,.3)', .2));
+      else if(p.style==='shoe') out.push('<rect x="'+cx+'" y="'+cy+'" width="'+cw+'" height="'+(ch*.47)+'" rx="'+(ch*.2)+'" fill="'+col+'"'+EDGE+'/><rect x="'+cx+'" y="'+(cy+ch*.53)+'" width="'+cw+'" height="'+(ch*.47)+'" rx="'+(ch*.2)+'" fill="'+col+'"'+EDGE+'/>'+ln(cx+cw*.55, cy+ch*.12, cx+cw*.8, cy+ch*.12, 'rgba(255,255,255,.35)', .25)+ln(cx+cw*.55, cy+ch*.65, cx+cw*.8, cy+ch*.65, 'rgba(255,255,255,.35)', .25));
+      else out.push('<rect x="'+cx+'" y="'+cy+'" width="'+cw+'" height="'+ch+'" rx=".8" fill="'+colorFor(bd.m)+'"'+EDGE+'/>');
+    }
+    return out;
+  }
+  // The whole cube's contents; pieces at index ≥ from pop in
+  function garmentSvg(c, L, from){
+    var long=Math.max(c.w,c.h), short=Math.min(c.w,c.h), pad=.35, x0=pad, avail=long-pad*2, H=short-pad*2, g='', ui=0;
+    var tf=c.w<c.h ? ' transform="matrix(0,1,-1,0,'+c.w+',0)"' : '';
+    L.bands.forEach(function(bd){
+      var bw=avail*bd.share;
+      drawBand(bd, x0, pad, bw, H).forEach(function(sv){ g+= ui>=from ? '<g class="roll-new" style="--i:'+(ui-from)+'">'+sv+'</g>' : sv; ui++; });
+      x0+=bw;
     });
-    return '<svg class="rolls" viewBox="0 0 '+c.w+' '+c.h+'" preserveAspectRatio="none">'+g+'</svg>';
+    return { svg:'<svg class="rolls" viewBox="0 0 '+c.w+' '+c.h+'" preserveAspectRatio="none"><g'+tf+'>'+g+'</g></svg>', pieces:ui };
   }
   function scaleFor(b){ var d=BAG_DIMS[b]; return Math.min(11, 620/d.l, 260/d.w); }
   function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
@@ -1164,14 +1263,14 @@
 
   function cubeHtml(c, s){
     var t=CUBE_TYPES[c.type], L=cubeLayout(c), st=fillStatus(L), empty=!L.count;
-    var mem=cubeMemo[c.id], full=!L.over && L.count>0 && (L.ratio>=0.999 || !L.room), from=mem ? Math.min(mem.n, L.rolls.length) : L.rolls.length;
+    var mem=cubeMemo[c.id], full=!L.over && L.count>0 && (L.ratio>=0.999 || !L.room), gs=empty ? { svg:'', pieces:0 } : garmentSvg(c, L, mem ? mem.n : Infinity);
     var jolt=mem && L.over && !mem.over;
     if(mem && full && !mem.full) celebrate.push(c.id);
-    cubeMemo[c.id]={ n:L.rolls.length, over:!!L.over, full:full };
+    cubeMemo[c.id]={ n:gs.pieces, over:!!L.over, full:full };
     var dark=t.kind==='tech' || t.kind==='hard';
     var bg=t.kind==='tech' ? '#5f5e5a' : (t.kind==='hard' ? '#262624' : 'rgba(255,255,255,.55)'), fg=dark ? '#e8e8e6' : '#1a1a18';
     return '<div class="cube kind-'+t.kind+(empty?' empty':'')+(st.cls?' '+st.cls:'')+(selCube===c.id?' sel':'')+(jolt?' jolt':'')+'" data-cube="'+c.id+'" style="left:'+(c.x*s)+'px;top:'+(c.y*s)+'px;width:'+(c.w*s)+'px;height:'+(c.h*s)+'px;background:'+bg+';color:'+fg+';border-color:#1a1a18;">'
-      +(empty?'':rollsSvg(c, L, from))
+      +gs.svg
       +'<div class="cube-bar" data-cube="'+c.id+'"><i class="ti ti-grip-vertical"></i><span class="lbl">'+t.label+' <span class="dim">'+c.w+'×'+c.h+'</span></span><button class="cube-rot" data-cube="'+c.id+'" aria-label="Rotate cube" title="Rotate"><i class="ti ti-rotate-clockwise"></i></button><button class="cube-x" data-cube="'+c.id+'" aria-label="Remove cube">&times;</button></div>'
       +(empty?'<div class="empty-msg">Drag items here</div>':'')
       +(st.text?'<div class="status">'+st.text+'</div>':'')
@@ -1267,8 +1366,58 @@
       return '<div class="hanger look-'+h.look+'" data-spot="'+h.id+'" style="'+pos+'">'
         +'<div class="hl">'+h.label+'</div>'
         +(items.length ? items.map(function(k){ var m=META[k]; return '<div class="hi">'+iconHtml(m.name, m.icon)+esc(m.name)+'<button class="hx" data-id="'+k+'" aria-label="Take it out">&times;</button></div>'; }).join('') : '<div class="he">'+h.hint+'</div>')
+        +(h.look==='wallet' ? '<button class="hopen" data-bag="'+b+'"><i class="ti ti-book-2"></i> Open wallet</button>' : '')
         +'<span class="hb">trtl</span></div>';
     }).join('');
+  }
+
+  // ---- Travel wallet: opens like the real one, cards in the left pocket, passport in the right sleeve ----
+  var WALLET_ITEMS=['Passport','Credit Card','ID Card','Drivers License','Document Copy'];
+  function travelId(name){ var r=null; Object.keys(META).forEach(function(k){ if(META[k].name===name && META[k].domain==='Travel') r=k; }); return r; }
+  function inWallet(b, id){ var v=state.items[id]; return !!(v && v.bag===b && v.spot==='wallet'); }
+  function walletSvg(b, fresh){
+    var has=function(n){ var id=travelId(n); return id && inWallet(b, id); };
+    var pebble='<pattern id="peb" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r=".8" fill="rgba(255,255,255,.05)"/><circle cx="4" cy="3.8" r=".6" fill="rgba(255,255,255,.04)"/></pattern>';
+    function pop(n){ return fresh===n ? ' class="w-in"' : ''; }
+    var cards=[['Credit Card',60,'#F26B3A','#E8463A','DEBIT'],['ID Card',84,'#e4ece6','#cfdcd2','ID'],['Drivers License',108,'#f4eef1','#e6d9df','LICENCE']], cg='';
+    cards.forEach(function(c){
+      if(has(c[0])){
+        cg+='<g'+pop(c[0])+'><rect x="40" y="'+c[1]+'" width="182" height="114" rx="9" fill="'+c[2]+'" stroke="rgba(0,0,0,.25)"/>'
+          +(c[0]==='Credit Card' ? '<rect x="58" y="'+(c[1]+14)+'" width="26" height="19" rx="3" fill="#E7C46A"/><text x="206" y="'+(c[1]+22)+'" font-size="11" font-weight="700" fill="#fff" text-anchor="end" font-family="system-ui">'+c[4]+'</text>'
+            : '<rect x="52" y="'+(c[1]+12)+'" width="34" height="42" rx="3" fill="'+c[3]+'"/><circle cx="69" cy="'+(c[1]+27)+'" r="7" fill="#9aa39d"/><path d="M57 '+(c[1]+52)+'c2-9 22-9 24 0" fill="#9aa39d"/><text x="206" y="'+(c[1]+20)+'" font-size="9" font-weight="700" fill="#5d6a62" text-anchor="end" font-family="system-ui">'+c[4]+'</text>')+'</g>';
+      } else cg+='<rect x="40" y="'+c[1]+'" width="182" height="114" rx="9" fill="none" stroke="rgba(255,255,255,.18)" stroke-dasharray="4 4"/>';
+    });
+    var pp = has('Passport')
+      ? '<g'+pop('Passport')+'><rect x="290" y="42" width="138" height="246" rx="8" fill="#1f2f63" stroke="rgba(0,0,0,.4)"/><circle cx="359" cy="118" r="22" fill="none" stroke="#d6b25e" stroke-width="2"/><path d="M359 104l4 9 10 1-7.5 6.5 2.5 10-9-5.5-9 5.5 2.5-10-7.5-6.5 10-1z" fill="#d6b25e"/><text x="359" y="176" font-size="12" letter-spacing="3" fill="#d6b25e" text-anchor="middle" font-family="system-ui">PASSPORT</text></g>'
+      : '<rect x="290" y="42" width="138" height="246" rx="8" fill="none" stroke="rgba(255,255,255,.2)" stroke-dasharray="5 5"/><text x="359" y="170" font-size="12" fill="rgba(255,255,255,.4)" text-anchor="middle" font-family="system-ui">Passport</text>';
+    var doc = has('Document Copy') ? '<g'+pop('Document Copy')+'><rect x="298" y="30" width="128" height="170" rx="3" fill="#f6f5f1" transform="rotate(-4 362 115)" stroke="rgba(0,0,0,.2)"/><path d="M314 50h80M314 62h90M314 74h70" stroke="#c9c6bd" stroke-width="3" transform="rotate(-4 362 115)"/></g>' : '';
+    return '<svg class="wallet-svg" viewBox="0 0 520 330" role="img" aria-label="Open travel wallet"><defs>'+pebble+'</defs>'
+      +'<g class="w-left"><rect x="10" y="10" width="250" height="310" rx="16" fill="#232321"/><rect x="10" y="10" width="250" height="310" rx="16" fill="url(#peb)"/><rect x="18" y="18" width="234" height="294" rx="11" fill="none" stroke="rgba(255,255,255,.16)" stroke-dasharray="3 3"/>'
+      +'<rect x="30" y="38" width="210" height="145" rx="11" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.14)"/>'+cg
+      +'<rect x="24" y="160" width="222" height="148" rx="10" fill="#1b1b1a"/><rect x="24" y="160" width="222" height="148" rx="10" fill="url(#peb)"/><path d="M124 270v18M115 279h18" stroke="rgba(255,255,255,.18)" stroke-width="2"/></g>'
+      +'<g class="w-right"><rect x="260" y="10" width="250" height="310" rx="16" fill="#232321"/><rect x="260" y="10" width="250" height="310" rx="16" fill="url(#peb)"/><rect x="268" y="18" width="234" height="294" rx="11" fill="none" stroke="rgba(255,255,255,.16)" stroke-dasharray="3 3"/>'+doc+pp
+      +'<rect x="400" y="22" width="102" height="286" rx="12" fill="#262624" stroke="rgba(0,0,0,.4)"/><rect x="400" y="22" width="102" height="286" rx="12" fill="url(#peb)"/><rect x="407" y="29" width="88" height="272" rx="8" fill="none" stroke="rgba(255,255,255,.16)" stroke-dasharray="3 3"/></g>'
+      +'<rect x="256" y="10" width="8" height="310" fill="#151514"/></svg>';
+  }
+  function openWallet(b, fresh){
+    var box=scPack.querySelector('#modal-box'), modal=scPack.querySelector('#modal'), count=0;
+    var rows=WALLET_ITEMS.map(function(n){
+      var id=travelId(n); if(!id) return '';
+      var on=inWallet(b, id); if(on) count++;
+      var label={ 'Credit Card':'Debit card', 'Drivers License':'Driver’s licence' }[n] || n;
+      return '<button class="w-row'+(on?' on':'')+'" data-id="'+id+'">'+iconHtml(META[id].name, META[id].icon)+'<span>'+label+'</span><span class="w-state">'+(on?'<i class="ti ti-circle-check"></i> In the wallet':'<i class="ti ti-plus"></i> Put it in')+'</span></button>';
+    }).join('');
+    box.classList.add('wallet-box');
+    box.innerHTML='<div class="m-head"><span class="m-title">Travel wallet</span><button class="m-close" aria-label="Close">&times;</button></div>'
+      +'<div class="m-count">'+(count===WALLET_ITEMS.length ? 'Everything’s in. You’re good to go.' : count+' of '+WALLET_ITEMS.length+' in the wallet. Tap anything missing to put it in.')+'</div>'
+      +'<div class="wallet-wrap'+(fresh?'':' opening')+'">'+walletSvg(b, fresh)+'</div><div class="w-list">'+rows+'</div>';
+    box.querySelector('.m-close').onclick=function(){ modal.classList.remove('open'); box.classList.remove('wallet-box'); };
+    box.querySelectorAll('.w-row').forEach(function(r){ r.onclick=function(){
+      var id=r.dataset.id, on=inWallet(b, id);
+      state.items[id] = on ? 'available' : { bag:b, spot:'wallet' };
+      refresh(); openWallet(b, on ? null : META[id].name);
+    }; });
+    modal.classList.add('open');
   }
 
   function renderStudio(animate){
@@ -1421,15 +1570,19 @@
       var ce=e.target.closest('.cube');
       // Items only go into a cube, case or pouch, never loose in the bag
       if(!ce){ clearDrag(); flash('Drop it onto a cube or case, not loose in the bag.'); replay(inner, 'jolt'); return; }
-      state.items[draggingId] = { bag:studioBag, cube:ce.dataset.cube, n:META[draggingId].q||1 };
+      var cube=findCube(studioBag, ce.dataset.cube), m=META[draggingId], pk=packFor(m), want=m.q||1;
+      var space=capOf(cube)*(1-cubeLayout(cube).ratio), n=Math.max(1, Math.min(want, Math.floor(space/pk.cost+1e-6)));
+      state.items[draggingId] = { bag:studioBag, cube:ce.dataset.cube, n:n };
       selCube=ce.dataset.cube;
       clearDrag(); refresh();
+      if(n<want) flash('Fitted '+n+' of '+want+' '+m.name+'. Use a bigger cube for all '+want+'.');
     });
     host.addEventListener('click', function(e){
       var x=e.target.closest('.cube-x'); if(x){ removeCube(studioBag, x.dataset.cube); return; }
       var rt=e.target.closest('.cube-rot, .ce-rot'); if(rt){ rotateCube(studioBag, rt.dataset.cube); return; }
       var stp=e.target.closest('[data-step]'); if(stp){ setCount(stp.dataset.id, (state.items[stp.dataset.id].n||1)+parseInt(stp.dataset.step,10)); return; }
       var hx=e.target.closest('.hx'); if(hx){ state.items[hx.dataset.id]='available'; refresh(); return; }
+      if(e.target.closest('.hanger.look-wallet')){ openWallet(studioBag); return; }
       var out=e.target.closest('.ce-out'); if(out){ state.items[out.dataset.id]='available'; refresh(); return; }
       var cb=e.target.closest('.cube'); if(cb && e.detail===2 && !e.target.closest('select,input,button')){ rotateCube(studioBag, cb.dataset.cube); return; }
       if(cb){ if(selCube!==cb.dataset.cube){ selCube=cb.dataset.cube; renderStudio(false); } return; }
@@ -1547,6 +1700,7 @@
 
   function openContents(bagId){
     var box = scPack.querySelector('#modal-box');
+    box.classList.remove('wallet-box');
     var groups = groupFor(bagId); var keys = Object.keys(groups);
     var count = keys.reduce(function(a,k){ return a+groups[k].length; }, 0);
     var html = '<div class="m-head">'+BAGS[bagId].svg+'<span class="m-title">'+BAGS[bagId].label+'</span><button class="m-close" aria-label="Close">&times;</button></div>';
